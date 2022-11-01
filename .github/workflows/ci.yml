@@ -1,0 +1,16 @@
+name: CI Golang
+on:
+  pull_request:
+    branches:
+      - "main"
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    name: "Linting"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: run linting
+        uses: golangci/golangci-lint-action@v3
