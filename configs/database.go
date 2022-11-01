@@ -2,7 +2,6 @@ package configs
 
 import (
 	"Mini-Project_Coaching-Clinic/models"
-	"fmt"
 	"log"
 
 	"gorm.io/driver/postgres"
@@ -14,7 +13,7 @@ var DB *gorm.DB
 func initDatabase() {
 	DB_URI := Cfg.DB_URI
 
-	dsn := fmt.Sprintf("%s", DB_URI) // Build connection string
+	dsn := DB_URI // Build connection string
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
