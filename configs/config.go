@@ -30,6 +30,16 @@ var coachRepository repositories.CoachRepositories
 var coachService services.CoachService
 var CoachController controllers.CoachController
 
+//Coach Availability
+var coachAvailabilityRepository repositories.CoachAvailabilityRepositories
+var coachAvailabilityService services.CoachAvailabilityService
+var CoachAvailabilityController controllers.CoachAvailabilityController
+
+//Coach Experience
+var coachExperienceRepository repositories.CoachExperienceRepositories
+var coachExperienceService services.CoachExperienceService
+var CoachExperienceController controllers.CoachExperienceController
+
 func Init() {
 	initConfig()
 	initDatabase()
@@ -60,16 +70,22 @@ func initRepository() {
 	userRepository = repositories.NewUserRepositories(DB)
 	gameRepository = repositories.NewGameRepositories(DB)
 	coachRepository = repositories.NewCoachRepositories(DB)
+	coachAvailabilityRepository = repositories.NewCoachAvailabilityRepositories(DB)
+	coachExperienceRepository = repositories.NewCoachExperienceRepositories(DB)
 }
 
 func initService() {
 	userService = services.NewUserService(userRepository)
 	gameService = services.NewGameService(gameRepository)
 	coachService = services.NewCoachService(coachRepository, gameRepository, userRepository)
+	coachAvailabilityService = services.NewCoachAvailabilityService(coachAvailabilityRepository)
+	coachExperienceService = services.NewCoachExperienceService(coachExperienceRepository)
 }
 
 func initController() {
 	UserController = controllers.NewUserController(userService)
 	GameController = controllers.NewGameController(gameService)
 	CoachController = controllers.NewCoachController(coachService)
+	CoachAvailabilityController = controllers.NewCoachAvailabilityController(coachAvailabilityService)
+	CoachExperienceController = controllers.NewCoachExperienceController(coachExperienceService)
 }

@@ -15,7 +15,7 @@ type Coach struct {
 	GameID            uint                `json:"game_id"`                                                    // foreign key
 	Game              Game                `gorm:"foreignKey:GameID;references:ID" json:"game"`                // one to one relationship with game table
 	CoachExperience   []CoachExperience   `gorm:"foreignKey:CoachID;references:ID" json:"coach_experience"`   // one to many relationship with coach_experience table
-	CoachAvailibility []CoachAvailibility `gorm:"foreignKey:CoachID;references:ID" json:"coach_availibility"` // one to many relationship with coach_avalibility table
+	CoachAvailability []CoachAvailability `gorm:"foreignKey:CoachID;references:ID" json:"coach_availibility"` // one to many relationship with coach_avalibility table
 }
 
 func (coach *Coach) BeforeCreate(tx *gorm.DB) (err error) {

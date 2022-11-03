@@ -91,17 +91,17 @@ func (s *coachService) Create(coach models.Coach) (dto.CoachResponse, error) {
 	}
 
 	coachResponse = dto.CoachResponse{
-		ID:               coach.ID.String(),
-		FirstName:        coachResponse.FirstName,
-		LastName:         coachResponse.LastName,
-		Email:            coachResponse.Email,
-		Position:         coach.Position,
-		Code:             coach.Code,
-		Price:            coach.Price,
-		UserID:           coach.UserID,
-		GameID:           coach.GameID,
-		CoachExperience:  coach.CoachExperience,
-		CoachAvalibility: coach.CoachAvailibility,
+		ID:                coach.ID.String(),
+		FirstName:         coachResponse.FirstName,
+		LastName:          coachResponse.LastName,
+		Email:             coachResponse.Email,
+		Position:          coach.Position,
+		Code:              coach.Code,
+		Price:             coach.Price,
+		UserID:            coach.UserID,
+		GameID:            coach.GameID,
+		CoachExperience:   coach.CoachExperience,
+		CoachAvailability: coach.CoachAvailability,
 	}
 
 	return coachResponse, nil
@@ -114,17 +114,17 @@ func (s *coachService) Update(coach models.Coach, id string) (dto.CoachResponse,
 	}
 
 	coachResponse := dto.CoachResponse{
-		ID:               coach.ID.String(),
-		FirstName:        coach.User.FirstName,
-		LastName:         coach.User.LastName,
-		Email:            coach.User.Email,
-		Position:         coach.Position,
-		Code:             coach.Code,
-		Price:            coach.Price,
-		UserID:           coach.UserID,
-		GameID:           coach.GameID,
-		CoachExperience:  coach.CoachExperience,
-		CoachAvalibility: coach.CoachAvailibility,
+		ID:                coach.ID.String(),
+		FirstName:         coach.User.FirstName,
+		LastName:          coach.User.LastName,
+		Email:             coach.User.Email,
+		Position:          coach.Position,
+		Code:              coach.Code,
+		Price:             coach.Price,
+		UserID:            coach.UserID,
+		GameID:            coach.GameID,
+		CoachExperience:   coach.CoachExperience,
+		CoachAvailability: coach.CoachAvailability,
 	}
 
 	return coachResponse, nil
