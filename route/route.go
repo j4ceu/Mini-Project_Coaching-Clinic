@@ -40,5 +40,15 @@ func NewRouter() *echo.Echo {
 	auth.GET(constant.ENDPOINT_COACH_DETAIL, configs.CoachController.FindCoachByID)                                                  // Find Coach By ID
 	auth.GET(constant.ENDPOINT_COACH_BY_GAME, configs.CoachController.FindCoachByGameID)                                             // Find Coach By Game ID
 
+	//Coach Availability Router With Auth
+	auth.POST(constant.ENDPOINT_COACH_AVAILABILITY_CREATE, configs.CoachAvailabilityController.CreateCoachAvailability, middlewares.UnauthorizedRole([]string{"User"}))   // Create Coach Availability
+	auth.PUT(constant.ENDPOINT_COACH_AVAILABILITY_UPDATE, configs.CoachAvailabilityController.UpdateCoachAvailability, middlewares.UnauthorizedRole([]string{"User"}))    // Update Coach Availability
+	auth.DELETE(constant.ENDPOINT_COACH_AVAILABILITY_DELETE, configs.CoachAvailabilityController.DeleteCoachAvailability, middlewares.UnauthorizedRole([]string{"User"})) // Delete Coach Availability
+
+	//Coach Experience Router With Auth
+	auth.POST(constant.ENDPOINT_COACH_EXPERIENCE_CREATE, configs.CoachExperienceController.CreateCoachExperience, middlewares.UnauthorizedRole([]string{"User"}))   // Create Coach Experience
+	auth.PUT(constant.ENDPOINT_COACH_EXPERIENCE_UPDATE, configs.CoachExperienceController.UpdateCoachExperience, middlewares.UnauthorizedRole([]string{"User"}))    // Update Coach Experience
+	auth.DELETE(constant.ENDPOINT_COACH_EXPERIENCE_DELETE, configs.CoachExperienceController.DeleteCoachExperience, middlewares.UnauthorizedRole([]string{"User"})) // Delete Coach Experience
+
 	return e
 }

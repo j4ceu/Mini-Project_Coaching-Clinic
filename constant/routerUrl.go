@@ -23,4 +23,14 @@ const (
 	ENDPOINT_COACH_DETAIL  = "/coach/:id"      // :id adalah parameter yang akan diisi oleh user
 	ENDPOINT_COACH_BY_GAME = "/coach/game/:id" // :id adalah parameter yang akan diisi oleh user
 
+	// Endpoint Coach Availability
+	ENDPOINT_COACH_AVAILABILITY_CREATE = "/coach/availability"
+	ENDPOINT_COACH_AVAILABILITY_UPDATE = "/coach/availability/:id" // :id adalah parameter yang akan diisi oleh user
+	ENDPOINT_COACH_AVAILABILITY_DELETE = "/coach/availability/:id" // :id adalah parameter yang akan diisi oleh user
+
+	// Endpoint Coach Experience
+	ENDPOINT_COACH_EXPERIENCE_CREATE = "/coach/experience"
+	ENDPOINT_COACH_EXPERIENCE_UPDATE = "/coach/experience/:id" // :id adalah parameter yang akan diisi oleh user
+	ENDPOINT_COACH_EXPERIENCE_DELETE = "/coach/experience/:id" // :id adalah parameter yang akan diisi oleh user
+
 )

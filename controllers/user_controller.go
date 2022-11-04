@@ -77,13 +77,13 @@ func (u *userController) DeleteUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, baseResponse)
 	}
 
-	user, err := u.userService.Delete(idReq)
+	_, err := u.userService.Delete(idReq)
 	if err != nil {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusInternalServerError, dto.EmptyObj{}, err.Error())
 		return c.JSON(http.StatusInternalServerError, baseResponse)
 	}
 
-	baseResponse := dto.ConvertToBaseResponse("success", http.StatusOK, user)
+	baseResponse := dto.ConvertToBaseResponse("success", http.StatusOK, dto.EmptyObj{})
 	return c.JSON(http.StatusOK, baseResponse)
 }
 

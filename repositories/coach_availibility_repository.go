@@ -6,52 +6,52 @@ import (
 	"gorm.io/gorm"
 )
 
-type CoachAvailibilityRepositories interface {
-	FindByID(id string) (models.CoachAvailibility, error)
-	Create(CoachAvailibility models.CoachAvailibility) (models.CoachAvailibility, error)
-	Update(CoachAvailibility models.CoachAvailibility, id string) (models.CoachAvailibility, error)
-	Delete(id string) (models.CoachAvailibility, error)
+type CoachAvailabilityRepositories interface {
+	FindByID(id string) (models.CoachAvailability, error)
+	Create(CoachAvailability models.CoachAvailability) (models.CoachAvailability, error)
+	Update(CoachAvailability models.CoachAvailability, id string) (models.CoachAvailability, error)
+	Delete(id string) (models.CoachAvailability, error)
 }
 
-type CoachAvailibilityRepo struct {
+type CoachAvailabilityRepo struct {
 	db *gorm.DB
 }
 
-func NewCoachAvailibilityRepositories(db *gorm.DB) *CoachAvailibilityRepo {
-	return &CoachAvailibilityRepo{db}
+func NewCoachAvailabilityRepositories(db *gorm.DB) *CoachAvailabilityRepo {
+	return &CoachAvailabilityRepo{db}
 }
 
-func (r *CoachAvailibilityRepo) FindByID(id string) (models.CoachAvailibility, error) {
-	var CoachAvailibility models.CoachAvailibility
-	err := r.db.Where("id = ?", id).First(&CoachAvailibility).Error
+func (r *CoachAvailabilityRepo) FindByID(id string) (models.CoachAvailability, error) {
+	var CoachAvailability models.CoachAvailability
+	err := r.db.Where("id = ?", id).First(&CoachAvailability).Error
 	if err != nil {
-		return CoachAvailibility, err
+		return CoachAvailability, err
 	}
-	return CoachAvailibility, nil
+	return CoachAvailability, nil
 }
 
-func (r *CoachAvailibilityRepo) Create(CoachAvailibility models.CoachAvailibility) (models.CoachAvailibility, error) {
-	err := r.db.Create(&CoachAvailibility).Error
+func (r *CoachAvailabilityRepo) Create(CoachAvailability models.CoachAvailability) (models.CoachAvailability, error) {
+	err := r.db.Create(&CoachAvailability).Error
 	if err != nil {
-		return CoachAvailibility, err
+		return CoachAvailability, err
 	}
-	return CoachAvailibility, nil
+	return CoachAvailability, nil
 }
 
-func (r *CoachAvailibilityRepo) Update(CoachAvailibilityUpdate models.CoachAvailibility, id string) (models.CoachAvailibility, error) {
-	var CoachAvailibility models.CoachAvailibility
-	err := r.db.Model(&CoachAvailibility).Where("id = ?", id).Updates(&CoachAvailibilityUpdate).Error
+func (r *CoachAvailabilityRepo) Update(CoachAvailabilityUpdate models.CoachAvailability, id string) (models.CoachAvailability, error) {
+	var CoachAvailability models.CoachAvailability
+	err := r.db.Model(&CoachAvailability).Where("id = ?", id).Updates(&CoachAvailabilityUpdate).Error
 	if err != nil {
-		return CoachAvailibility, err
+		return CoachAvailability, err
 	}
 	return r.FindByID(id)
 }
 
-func (r *CoachAvailibilityRepo) Delete(id string) (models.CoachAvailibility, error) {
-	var CoachAvailibility models.CoachAvailibility
-	err := r.db.Where("id = ?", id).Delete(&CoachAvailibility).Error
+func (r *CoachAvailabilityRepo) Delete(id string) (models.CoachAvailability, error) {
+	var CoachAvailability models.CoachAvailability
+	err := r.db.Where("id = ?", id).Delete(&CoachAvailability).Error
 	if err != nil {
-		return CoachAvailibility, err
+		return CoachAvailability, err
 	}
-	return CoachAvailibility, nil
+	return CoachAvailability, nil
 }

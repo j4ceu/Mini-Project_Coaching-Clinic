@@ -24,7 +24,7 @@ func NewCoachRepositories(db *gorm.DB) *coachRepo {
 
 func (r *coachRepo) FindByID(id string) (models.Coach, error) {
 	var coach models.Coach
-	err := r.db.Preload("User").Preload("Game").Preload("CoachExperience").Preload("CoachAvailibility").Where("id = ?", id).First(&coach).Error
+	err := r.db.Preload("User").Preload("Game").Preload("CoachExperience").Preload("CoachAvailability").Where("id = ?", id).First(&coach).Error
 	if err != nil {
 		return coach, err
 	}
