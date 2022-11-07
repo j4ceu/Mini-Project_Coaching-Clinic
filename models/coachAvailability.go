@@ -8,6 +8,7 @@ import (
 type CoachAvailability struct {
 	ID        uuid.UUID `gorm:"primaryKey" json:"id"`                     // Coach Avalibility ID
 	CoachID   string    `json:"coach_id" gorm:"uniqueIndex : time_idx"`   // foreign key
+	Coach     Coach     `json:"coach" gorm:"foreignKey:CoachID"`          // Coach
 	Day       string    `json:"day"`                                      // Coach Avalibility Day
 	StartTime string    `json:"start_time" gorm:"uniqueIndex : time_idx"` // Coach Avalibility Start Time
 	EndTime   string    `json:"end_time" gorm:"uniqueIndex : time_idx"`   // Coach Avalibility End Time

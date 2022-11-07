@@ -2,6 +2,7 @@ package configs
 
 import (
 	"Mini-Project_Coaching-Clinic/controllers"
+	"Mini-Project_Coaching-Clinic/helper"
 	"Mini-Project_Coaching-Clinic/repositories"
 	"Mini-Project_Coaching-Clinic/services"
 	"log"
@@ -40,8 +41,19 @@ var coachExperienceRepository repositories.CoachExperienceRepositories
 var coachExperienceService services.CoachExperienceService
 var CoachExperienceController controllers.CoachExperienceController
 
+// User Book
+var userBookRepository repositories.UserBookRepository
+var userBookService services.UserBookService
+var UserBookController controllers.UserBookController
+
+// User Payment
+var userPaymentRepository repositories.UserPaymentRepository
+var userPaymentService services.UserPaymentService
+var UserPaymentController controllers.UserPaymentController
+
 func Init() {
 	initConfig()
+	helper.InitAppFirebase()
 	initDatabase()
 	initRepository()
 	initService()
@@ -72,6 +84,8 @@ func initRepository() {
 	coachRepository = repositories.NewCoachRepositories(DB)
 	coachAvailabilityRepository = repositories.NewCoachAvailabilityRepositories(DB)
 	coachExperienceRepository = repositories.NewCoachExperienceRepositories(DB)
+	userBookRepository = repositories.NewUserBookRepository(DB)
+	userPaymentRepository = repositories.NewUserPaymentRepository(DB)
 }
 
 func initService() {
@@ -80,6 +94,9 @@ func initService() {
 	coachService = services.NewCoachService(coachRepository, gameRepository, userRepository)
 	coachAvailabilityService = services.NewCoachAvailabilityService(coachAvailabilityRepository)
 	coachExperienceService = services.NewCoachExperienceService(coachExperienceRepository)
+	userBookService = services.NewUserBookServices(userBookRepository, userPaymentRepository, coachAvailabilityRepository, coachRepository)
+	userPaymentService = services.NewUserPaymentServices(userPaymentRepository, userRepository)
+
 }
 
 func initController() {
@@ -88,4 +105,6 @@ func initController() {
 	CoachController = controllers.NewCoachController(coachService)
 	CoachAvailabilityController = controllers.NewCoachAvailabilityController(coachAvailabilityService)
 	CoachExperienceController = controllers.NewCoachExperienceController(coachExperienceService)
+	UserBookController = controllers.NewUserBookController(userBookService, userPaymentService)
+	UserPaymentController = controllers.NewUserPaymentController(userPaymentService)
 }
