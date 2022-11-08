@@ -17,6 +17,7 @@ type UserPaymentController interface {
 	FindUserPaymentById(c echo.Context) error
 	FindAllUserPayment(c echo.Context) error
 	FindAllUserPaymentPaid(c echo.Context) error
+	FindUserPaymentByInvoice(c echo.Context) error
 }
 
 type userPaymentController struct {
@@ -62,13 +63,27 @@ func (up *userPaymentController) UpdateUserPayment(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, baseResponse)
 	}
 
+	token := c.Get("token").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+
+	contentType := c.Request().Header.Get("Content-Type")
+	if claims["role"].(string) != "Admin" {
+		if contentType == "application/json" {
+			baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusUnauthorized, dto.EmptyObj{}, "unauthorized")
+			return c.JSON(http.StatusUnauthorized, baseResponse)
+		}
+		file, err := c.FormFile("proof_of_payment")
+		if err != nil {
+			baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusBadRequest, dto.EmptyObj{}, "proof of payment is required")
+			return c.JSON(http.StatusBadRequest, baseResponse)
+		}
+		userPayment.ProofOfPayment = file
+	}
+
 	if err := c.Bind(&userPayment); err != nil {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusBadRequest, dto.EmptyObj{}, err.Error())
 		return c.JSON(http.StatusBadRequest, baseResponse)
 	}
-
-	token := c.Get("token").(*jwt.Token)
-	claims := token.Claims.(jwt.MapClaims)
 
 	userPaymentResponse, err := up.userPaymentService.Update(userPayment, idReq, claims)
 	if err != nil {
@@ -154,5 +169,23 @@ func (up *userPaymentController) FindAllUserPaymentPaid(c echo.Context) error {
 	}
 
 	baseResponse := dto.ConvertToBaseResponse("success get all user payment paid", http.StatusOK, userPayment)
+	return c.JSON(http.StatusOK, baseResponse)
+}
+
+func (up *userPaymentController) FindUserPaymentByInvoice(c echo.Context) error {
+	invoice := c.Param("invoiceNumber")
+
+	if invoice == "" {
+		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusBadRequest, dto.EmptyObj{}, "invoice is required")
+		return c.JSON(http.StatusBadRequest, baseResponse)
+	}
+
+	userPayment, err := up.userPaymentService.FindByInvoiceNumber(invoice)
+	if err != nil {
+		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusInternalServerError, dto.EmptyObj{}, err.Error())
+		return c.JSON(http.StatusInternalServerError, baseResponse)
+	}
+
+	baseResponse := dto.ConvertToBaseResponse("success get user payment by invoice", http.StatusOK, userPayment)
 	return c.JSON(http.StatusOK, baseResponse)
 }

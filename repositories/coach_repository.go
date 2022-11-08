@@ -12,6 +12,7 @@ type CoachRepositories interface {
 	Create(coach models.Coach) (models.Coach, error)
 	Update(coach models.Coach, id string) (models.Coach, error)
 	Delete(id string) (models.Coach, error)
+	FindByCode(code string) (models.Coach, error)
 }
 
 type coachRepo struct {
@@ -33,7 +34,7 @@ func (r *coachRepo) FindByID(id string) (models.Coach, error) {
 
 func (r *coachRepo) FindByGameID(gameID string) ([]models.Coach, error) {
 	var coaches []models.Coach
-	err := r.db.Where("game_id = ?", gameID).Find(&coaches).Error
+	err := r.db.Where("game_id = ?", gameID).Preload("User").Preload("Game").Preload("CoachExperience").Preload("CoachAvailability").Find(&coaches).Error
 	if err != nil {
 		return coaches, err
 	}
@@ -65,4 +66,13 @@ func (r *coachRepo) Delete(id string) (models.Coach, error) {
 	}
 	return coach, nil
 
+}
+
+func (r *coachRepo) FindByCode(code string) (models.Coach, error) {
+	var coach models.Coach
+	err := r.db.Where("code = ?", code).Preload("User").Preload("Game").Preload("CoachExperience").Preload("CoachAvailability").First(&coach).Error
+	if err != nil {
+		return coach, err
+	}
+	return coach, nil
 }

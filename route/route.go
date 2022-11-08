@@ -4,7 +4,6 @@ import (
 	"Mini-Project_Coaching-Clinic/configs"
 	"Mini-Project_Coaching-Clinic/constant"
 	"Mini-Project_Coaching-Clinic/middlewares"
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -18,11 +17,8 @@ func NewRouter() *echo.Echo {
 	e.POST(constant.ENDPOINT_USER_LOGIN, configs.UserController.LoginUser)     // Login User
 	e.POST(constant.ENDPOINT_USER_REGISTER, configs.UserController.CreateUser) // Register User
 
-	fs := http.FileServer(http.Dir("./upload/invoices"))
-	e.GET("/invoices/*", echo.WrapHandler(http.StripPrefix("/invoices/", fs)))
-
 	auth := e.Group("/auth", middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey: []byte("jace"),
+		SigningKey: []byte(configs.Cfg.SECRET_JWT),
 		ContextKey: "token",
 	}))
 
@@ -42,7 +38,8 @@ func NewRouter() *echo.Echo {
 	auth.PUT(constant.ENDPOINT_COACH_UPDATE, configs.CoachController.UpdateCoach, middlewares.UnauthorizedRole([]string{"User"}))    // Update Coach
 	auth.DELETE(constant.ENDPOINT_COACH_DELETE, configs.CoachController.DeleteCoach, middlewares.UnauthorizedRole([]string{"User"})) // Delete Coach
 	auth.GET(constant.ENDPOINT_COACH_DETAIL, configs.CoachController.FindCoachByID)                                                  // Find Coach By ID
-	auth.GET(constant.ENDPOINT_COACH_BY_GAME, configs.CoachController.FindCoachByGameID)                                             // Find Coach By Game ID
+	auth.GET(constant.ENDPOINT_COACH_GETBYGAME, configs.CoachController.FindCoachByGameID)                                           // Find Coach By Game ID
+	auth.GET(constant.ENDPOINT_COACH_GETBYCODE, configs.CoachController.FindCoachByCode)                                             // Find Coach By Code
 
 	//Coach Availability Router With Auth
 	auth.POST(constant.ENDPOINT_COACH_AVAILABILITY_CREATE, configs.CoachAvailabilityController.CreateCoachAvailability, middlewares.UnauthorizedRole([]string{"User"}))   // Create Coach Availability
@@ -68,6 +65,7 @@ func NewRouter() *echo.Echo {
 	auth.DELETE(constant.ENDPOINT_USER_PAYMENT_DELETE, configs.UserPaymentController.DeleteUserPayment, middlewares.UnauthorizedRole([]string{"User"})) // Delete User Payment
 	auth.GET(constant.ENDPOINT_USER_PAYMENTS, configs.UserPaymentController.FindAllUserPayment, middlewares.UnauthorizedRole([]string{"User"}))         // Find All User Payment
 	auth.GET(constant.ENDPOINT_USER_PAYMENT_DETAIL, configs.UserPaymentController.FindUserPaymentById)                                                  // Find User Payment By User ID
+	auth.GET(constant.ENDPOINT_USER_PAYMENT_GETBYINVOICE, configs.UserPaymentController.FindUserPaymentByInvoice)                                       // Find User Payment By Invoice
 
 	return e
 }

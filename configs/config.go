@@ -11,7 +11,8 @@ import (
 )
 
 type Config struct {
-	DB_URI string
+	DB_URI     string
+	SECRET_JWT string
 }
 
 var Cfg *Config

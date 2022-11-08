@@ -7,15 +7,17 @@ import (
 	"Mini-Project_Coaching-Clinic/models"
 	"Mini-Project_Coaching-Clinic/repositories"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt"
 )
 
 type UserPaymentService interface {
-	FindAll() ([]models.UserPayment, error)
-	FindByPaidAndProofOfPaymentIsNotNull() ([]models.UserPayment, error)
-	FindByID(id string) (models.UserPayment, error)
+	FindAll() ([]dto.UserPaymentResponse, error)
+	FindByPaidAndProofOfPaymentIsNotNull() ([]dto.UserPaymentResponse, error)
+	FindByID(id string) (dto.UserPaymentResponse, error)
+	FindByInvoiceNumber(invoiceNumber string) (dto.UserPaymentResponse, error)
 	Create(userPayment payload.UserPaymentPayload) (dto.UserPaymentResponse, error)
 	Update(userPayment payload.UserPaymentPayload, id string, claims jwt.MapClaims) (dto.UserPaymentResponse, error)
 	Delete(id string) (models.UserPayment, error)
@@ -30,28 +32,119 @@ func NewUserPaymentServices(userPaymentRepo repositories.UserPaymentRepository, 
 	return &userPaymentService{userPaymentRepo, userRepo}
 }
 
-func (s *userPaymentService) FindAll() ([]models.UserPayment, error) {
+func (s *userPaymentService) FindAll() ([]dto.UserPaymentResponse, error) {
 	userPayments, err := s.userPaymentRepo.FindAll()
 	if err != nil {
-		return userPayments, err
+		return []dto.UserPaymentResponse{}, err
 	}
-	return userPayments, nil
+
+	var userPaymentResponses []dto.UserPaymentResponse
+
+	for _, userPayment := range userPayments {
+
+		userPaymentResponse := dto.UserPaymentResponse{
+			ID:             userPayment.ID.String(),
+			UserID:         userPayment.UserID,
+			Email:          userPayment.User.Email,
+			Invoice:        userPayment.Invoice,
+			ProofOfPayment: userPayment.ProofOfPayment,
+			Amount:         userPayment.Amount,
+			Paid:           userPayment.Paid,
+			ExpiredAt:      userPayment.ExpiredAt,
+		}
+		userPaymentResponses = append(userPaymentResponses, userPaymentResponse)
+	}
+
+	return userPaymentResponses, nil
 }
 
-func (s *userPaymentService) FindByPaidAndProofOfPaymentIsNotNull() ([]models.UserPayment, error) {
+func (s *userPaymentService) FindByInvoiceNumber(invoiceNumber string) (dto.UserPaymentResponse, error) {
+	userPayment, err := s.userPaymentRepo.FindByInvoiceNumber(invoiceNumber)
+	if err != nil {
+		return dto.UserPaymentResponse{}, err
+	}
+
+	var userBookResponse []dto.UserBookResponse
+	for _, userBook := range userPayment.UserBook {
+		userBook := dto.UserBookResponse{
+			ID:                  userBook.ID.String(),
+			Title:               userBook.Title,
+			CoachAvailabilityID: userBook.CoachAvailabilityID,
+			Summary:             userBook.Summary,
+			Done:                userBook.Done,
+		}
+		userBookResponse = append(userBookResponse, userBook)
+	}
+
+	userPaymentResponse := dto.UserPaymentResponse{
+		ID:             userPayment.ID.String(),
+		UserID:         userPayment.UserID,
+		Email:          userPayment.User.Email,
+		Invoice:        userPayment.Invoice,
+		ProofOfPayment: userPayment.ProofOfPayment,
+		Amount:         userPayment.Amount,
+		Paid:           userPayment.Paid,
+		ExpiredAt:      userPayment.ExpiredAt,
+		UserBook:       &userBookResponse,
+	}
+
+	return userPaymentResponse, nil
+}
+
+func (s *userPaymentService) FindByPaidAndProofOfPaymentIsNotNull() ([]dto.UserPaymentResponse, error) {
 	userPayments, err := s.userPaymentRepo.FindByPaidAndProofOfPaymentIsNotNull()
 	if err != nil {
-		return userPayments, err
+		return []dto.UserPaymentResponse{}, err
 	}
-	return userPayments, nil
+
+	var userPaymentResponses []dto.UserPaymentResponse
+
+	for _, userPayment := range userPayments {
+		userPaymentResponse := dto.UserPaymentResponse{
+			ID:             userPayment.ID.String(),
+			UserID:         userPayment.UserID,
+			Email:          userPayment.User.Email,
+			Invoice:        userPayment.Invoice,
+			ProofOfPayment: userPayment.ProofOfPayment,
+			Amount:         userPayment.Amount,
+			Paid:           userPayment.Paid,
+			ExpiredAt:      userPayment.ExpiredAt,
+		}
+		userPaymentResponses = append(userPaymentResponses, userPaymentResponse)
+	}
+	return userPaymentResponses, nil
 }
 
-func (s *userPaymentService) FindByID(id string) (models.UserPayment, error) {
+func (s *userPaymentService) FindByID(id string) (dto.UserPaymentResponse, error) {
 	userPayment, err := s.userPaymentRepo.FindByID(id)
 	if err != nil {
-		return userPayment, err
+		return dto.UserPaymentResponse{}, err
 	}
-	return userPayment, nil
+	var userBookResponse []dto.UserBookResponse
+
+	for _, userBook := range userPayment.UserBook {
+		userBook := dto.UserBookResponse{
+			ID:                  userBook.ID.String(),
+			Title:               userBook.Title,
+			CoachAvailabilityID: userBook.CoachAvailabilityID,
+			Summary:             userBook.Summary,
+			Done:                userBook.Done,
+		}
+		userBookResponse = append(userBookResponse, userBook)
+	}
+
+	userPaymentResponse := dto.UserPaymentResponse{
+		ID:             userPayment.ID.String(),
+		UserID:         userPayment.UserID,
+		Email:          userPayment.User.Email,
+		Invoice:        userPayment.Invoice,
+		ProofOfPayment: userPayment.ProofOfPayment,
+		Amount:         userPayment.Amount,
+		Paid:           userPayment.Paid,
+		ExpiredAt:      userPayment.ExpiredAt,
+		UserBook:       &userBookResponse,
+	}
+	return userPaymentResponse, nil
 }
 
 func (s *userPaymentService) Create(userPayment payload.UserPaymentPayload) (dto.UserPaymentResponse, error) {
@@ -72,19 +165,6 @@ func (s *userPaymentService) Create(userPayment payload.UserPaymentPayload) (dto
 		return dto.UserPaymentResponse{}, err
 	}
 
-	var userBookResponse []dto.UserBookResponse
-
-	for _, userBook := range userPaymentCreate.UserBook {
-		userBook := dto.UserBookResponse{
-			ID:                  userBook.ID.String(),
-			Title:               userBook.Title,
-			CoachAvailabilityID: userBook.CoachAvailabilityID,
-			Summary:             userBook.Summary,
-			Done:                userBook.Done,
-		}
-		userBookResponse = append(userBookResponse, userBook)
-	}
-
 	userPaymentResponse := dto.UserPaymentResponse{
 		ID:             userPaymentCreate.ID.String(),
 		UserID:         userPaymentCreate.UserID,
@@ -94,7 +174,6 @@ func (s *userPaymentService) Create(userPayment payload.UserPaymentPayload) (dto
 		Amount:         userPaymentCreate.Amount,
 		Paid:           userPaymentCreate.Paid,
 		ExpiredAt:      userPaymentCreate.ExpiredAt,
-		UserBook:       userBookResponse,
 	}
 
 	return userPaymentResponse, nil
@@ -113,36 +192,40 @@ func (s *userPaymentService) Update(userPaymentUpdate payload.UserPaymentPayload
 	//Check User Id and Role User
 	if role == "User" {
 		if getUserPayment.UserID != userID {
-
 			return dto.UserPaymentResponse{}, errors.New("unauthorized")
 		}
-		if userPaymentUpdate.Paid != nil || userPaymentUpdate.Amount != nil || userPaymentUpdate.Invoice != nil || userPaymentUpdate.ExpiredAt != nil || userPaymentUpdate.InvoiceNumber != nil {
-
-			return dto.UserPaymentResponse{}, errors.New("unauthorized")
-		}
-
 	}
 
-	boolTrue := true
 	var userPaymentModel models.UserPayment
 
-	if *userPaymentUpdate.Paid == boolTrue {
+	if userPaymentUpdate.Paid != nil {
+		if *userPaymentUpdate.Paid == true {
+			now := time.Now()
+			userPaymentModel.InvoiceNumber = "INV-" + now.Format("20060102150405")
+			userPaymentModel.Paid = true
 
-		now := time.Now()
-		userPaymentModel.InvoiceNumber = "INV-" + now.Format("20060102150405")
-		userPaymentModel.Paid = boolTrue
+			getUserPayment, err := s.userPaymentRepo.FindByIDWithAllRelationUserBook(id)
+			if err != nil {
+				return dto.UserPaymentResponse{}, err
+			}
 
-		getUserPayment, err := s.userPaymentRepo.FindByIDWithAllRelationUserBook(id)
+			url := helper.GenerateInvoice(getUserPayment, userPaymentModel.InvoiceNumber)
+			userPaymentModel.Invoice = url
+		}
+		userPaymentModel.Paid = false
+		log.Println("Paid ", userPaymentModel.Paid)
+	}
+
+	if userPaymentUpdate.ProofOfPayment != nil {
+		fileName, buf, err := helper.OpenFileFromMultipartForm(userPaymentUpdate.ProofOfPayment)
 		if err != nil {
 			return dto.UserPaymentResponse{}, err
 		}
 
-		url := helper.GenerateInvoice(getUserPayment, userPaymentModel.InvoiceNumber)
-		userPaymentModel.Invoice = url
-	}
+		url := helper.UploadFileToFirebase(*buf, fileName)
 
-	if userPaymentUpdate.ProofOfPayment != nil {
-		userPaymentModel.ProofOfPayment = *userPaymentUpdate.ProofOfPayment
+		userPaymentModel.ProofOfPayment = url
+
 	}
 
 	userPayment, err := s.userPaymentRepo.Update(userPaymentModel, id)
@@ -155,29 +238,6 @@ func (s *userPaymentService) Update(userPaymentUpdate payload.UserPaymentPayload
 		return dto.UserPaymentResponse{}, err
 	}
 
-	var userBookResponse []dto.UserBookResponse
-
-	for _, userBook := range userPayment.UserBook {
-
-		coachAvailability := dto.CoachAvailabilityResponse{
-			ID:        userBook.CoachAvailability.ID.String(),
-			CoachID:   userBook.CoachAvailability.CoachID,
-			Day:       userBook.CoachAvailability.Day,
-			StartTime: userBook.CoachAvailability.StartTime,
-			EndTime:   userBook.CoachAvailability.EndTime,
-		}
-
-		userBook := dto.UserBookResponse{
-			ID:                  userBook.ID.String(),
-			Title:               userBook.Title,
-			CoachAvailabilityID: userBook.CoachAvailabilityID,
-			Summary:             userBook.Summary,
-			Done:                userBook.Done,
-			CoachAvailability:   coachAvailability,
-		}
-		userBookResponse = append(userBookResponse, userBook)
-	}
-
 	userPaymentResponse := dto.UserPaymentResponse{
 		ID:             userPayment.ID.String(),
 		UserID:         userPayment.UserID,
@@ -188,7 +248,6 @@ func (s *userPaymentService) Update(userPaymentUpdate payload.UserPaymentPayload
 		Amount:         userPayment.Amount,
 		Paid:           userPayment.Paid,
 		ExpiredAt:      userPayment.ExpiredAt,
-		UserBook:       userBookResponse,
 	}
 
 	return userPaymentResponse, nil
