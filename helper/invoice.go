@@ -5,11 +5,18 @@ import (
 	"bytes"
 	"io/ioutil"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
 	generator "github.com/angelodlfrtr/go-invoice-generator"
 )
+
+type BodyLinkEmail struct {
+	URL       string
+	Firstname string
+	Invoice   *os.File
+}
 
 func GenerateInvoice(userPayment models.UserPayment, invoice string) string {
 	doc, _ := generator.New(generator.Invoice, &generator.Options{
@@ -60,11 +67,6 @@ func GenerateInvoice(userPayment models.UserPayment, invoice string) string {
 		log.Fatal(err)
 	}
 
-	// err = pdf.OutputFileAndClose("./upload/invoices/" + invoice + ".pdf")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	var buf bytes.Buffer
 
 	err = pdf.Output(&buf)
@@ -72,7 +74,35 @@ func GenerateInvoice(userPayment models.UserPayment, invoice string) string {
 		log.Fatal(err)
 	}
 
+	file := createTempFile(buf, invoice)
+
 	url := UploadFileToFirebase(buf, invoice+".pdf")
+
+	bodyLinkEmail := BodyLinkEmail{
+		URL:       url,
+		Firstname: userPayment.User.FirstName,
+		Invoice:   file,
+	}
+
+	go SendEmailVerification(userPayment.User.Email, bodyLinkEmail)
+
 	return url
 
+}
+
+func createTempFile(buf bytes.Buffer, invoice string) *os.File {
+	invoiceName := invoice + ".pdf"
+	f, err := os.CreateTemp("", invoiceName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer f.Close()
+	defer os.Remove(f.Name())
+
+	if _, err := f.Write(buf.Bytes()); err != nil {
+		log.Fatal(err)
+	}
+
+	return f
 }

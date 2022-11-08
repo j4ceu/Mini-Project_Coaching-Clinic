@@ -58,9 +58,11 @@ func UploadFileToFirebase(buf bytes.Buffer, fileName string) string {
 		fmt.Println(err)
 	}
 
+
+
 	fmt.Println(wc, "%v uploaded to %v.\n", fileName, bucket)
 
-	url, _ := url.Parse(fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media&token=%s", wc.Attrs().Name, fileName, wc.Metadata["firebaseStorageDownloadTokens"]))
+	url, _ := url.Parse(fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media&token=%s", wc.Attrs().Bucket, fileName, wc.Metadata["firebaseStorageDownloadTokens"]))
 	return url.String()
 
 }

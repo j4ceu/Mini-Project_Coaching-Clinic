@@ -7,6 +7,7 @@ import (
 	"Mini-Project_Coaching-Clinic/services"
 	"log"
 
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
@@ -62,6 +63,11 @@ func Init() {
 }
 
 func initConfig() {
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
 	cfg := &Config{}
 
 	viper.SetConfigName(".env")
