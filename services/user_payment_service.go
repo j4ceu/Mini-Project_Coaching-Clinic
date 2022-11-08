@@ -198,8 +198,9 @@ func (s *userPaymentService) Update(userPaymentUpdate payload.UserPaymentPayload
 
 	var userPaymentModel models.UserPayment
 
-	if *userPaymentUpdate.Paid {
-		if *userPaymentUpdate.Paid == true {
+	if userPaymentUpdate.Paid != nil {
+		boolTrue := true
+		if userPaymentUpdate.Paid == &boolTrue {
 			now := time.Now()
 			userPaymentModel.InvoiceNumber = "INV-" + now.Format("20060102150405")
 			userPaymentModel.Paid = true
