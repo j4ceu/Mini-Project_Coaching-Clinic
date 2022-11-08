@@ -13,13 +13,13 @@ func sendMail(to string, data interface{}, templateFile string) error {
 	// Set up authentication information.
 	result, _ := ParseTemplate(templateFile, data)
 	m := gomail.NewMessage()
-	m.SetHeader("From", "j4ceucoachingclinic@gmail.com")
+	m.SetHeader("From", os.Getenv("EMAIL"))
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", fmt.Sprintf("Invoice Coaching Clinic - %s", data.(BodyLinkEmail).Firstname))
 	m.SetBody("text/html", result)
 	m.Attach(data.(BodyLinkEmail).Invoice.Name())
 
-	d := gomail.NewDialer("smtp.gmail.com", 587, "j4ceucoachingclinic@gmail.com", "fssqilhrgqwrdzhl")
+	d := gomail.NewDialer("smtp.gmail.com", 587, os.Getenv("EMAIL"), os.Getenv("EMAIL_PASSWORD"))
 	err := d.DialAndSend(m)
 	if err != nil {
 		return err
