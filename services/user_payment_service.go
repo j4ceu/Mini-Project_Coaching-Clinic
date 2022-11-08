@@ -7,7 +7,6 @@ import (
 	"Mini-Project_Coaching-Clinic/models"
 	"Mini-Project_Coaching-Clinic/repositories"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -199,8 +198,8 @@ func (s *userPaymentService) Update(userPaymentUpdate payload.UserPaymentPayload
 	var userPaymentModel models.UserPayment
 
 	if userPaymentUpdate.Paid != nil {
-		boolTrue := true
-		if userPaymentUpdate.Paid == &boolTrue {
+		checkBool := *userPaymentUpdate.Paid
+		if checkBool == true {
 			now := time.Now()
 			userPaymentModel.InvoiceNumber = "INV-" + now.Format("20060102150405")
 			userPaymentModel.Paid = true
@@ -212,9 +211,10 @@ func (s *userPaymentService) Update(userPaymentUpdate payload.UserPaymentPayload
 
 			url := helper.GenerateInvoice(getUserPayment, userPaymentModel.InvoiceNumber)
 			userPaymentModel.Invoice = url
+		} else {
+			userPaymentModel.Paid = false
 		}
-		userPaymentModel.Paid = false
-		log.Println("Paid ", userPaymentModel.Paid)
+
 	}
 
 	if userPaymentUpdate.ProofOfPayment != nil {
