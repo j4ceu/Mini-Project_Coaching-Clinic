@@ -8,8 +8,9 @@ import (
 )
 
 type CoachService interface {
-	FindByID(id string) (models.Coach, error)
-	FindByGameID(gameID string) ([]models.Coach, error)
+	FindByID(id string) (dto.CoachResponse, error)
+	FindByCode(code string) (dto.CoachResponse, error)
+	FindByGameID(gameID string) ([]dto.CoachResponse, error)
 	Create(coach models.Coach) (dto.CoachResponse, error)
 	Update(coach models.Coach, id string) (dto.CoachResponse, error)
 	Delete(id string) (models.Coach, error)
@@ -25,20 +26,107 @@ func NewCoachService(coachRepo repositories.CoachRepositories, gameRepo reposito
 	return &coachService{coachRepo, gameRepo, userRepo}
 }
 
-func (s *coachService) FindByID(id string) (models.Coach, error) {
+func (s *coachService) FindByID(id string) (dto.CoachResponse, error) {
 	coach, err := s.coachRepo.FindByID(id)
 	if err != nil {
-		return coach, err
+		return dto.CoachResponse{}, err
 	}
-	return coach, nil
+
+	var coachAvailabilities []dto.CoachAvailabilityResponse
+
+	for _, ca := range coach.CoachAvailability {
+		coachAvailability := dto.CoachAvailabilityResponse{
+			ID:        ca.ID.String(),
+			Day:       ca.Day,
+			StartTime: ca.StartTime,
+			EndTime:   ca.EndTime,
+		}
+		coachAvailabilities = append(coachAvailabilities, coachAvailability)
+	}
+
+	coachResponse := dto.CoachResponse{
+		ID:                coach.ID.String(),
+		FirstName:         coach.User.FirstName,
+		LastName:          coach.User.LastName,
+		Position:          coach.Position,
+		Code:              coach.Code,
+		Price:             coach.Price,
+		UserID:            coach.UserID,
+		GameID:            coach.GameID,
+		CoachExperience:   coach.CoachExperience,
+		CoachAvailability: coachAvailabilities,
+	}
+
+	return coachResponse, nil
 }
 
-func (s *coachService) FindByGameID(gameID string) ([]models.Coach, error) {
+func (s *coachService) FindByCode(code string) (dto.CoachResponse, error) {
+	coach, err := s.coachRepo.FindByCode(code)
+	if err != nil {
+		return dto.CoachResponse{}, err
+	}
+	var coachAvailabilities []dto.CoachAvailabilityResponse
+
+	for _, ca := range coach.CoachAvailability {
+		coachAvailability := dto.CoachAvailabilityResponse{
+			ID:        ca.ID.String(),
+			Day:       ca.Day,
+			StartTime: ca.StartTime,
+			EndTime:   ca.EndTime,
+		}
+		coachAvailabilities = append(coachAvailabilities, coachAvailability)
+	}
+
+	coachResponse := dto.CoachResponse{
+		ID:                coach.ID.String(),
+		FirstName:         coach.User.FirstName,
+		LastName:          coach.User.LastName,
+		Position:          coach.Position,
+		Code:              coach.Code,
+		Price:             coach.Price,
+		UserID:            coach.UserID,
+		GameID:            coach.GameID,
+		CoachExperience:   coach.CoachExperience,
+		CoachAvailability: coachAvailabilities,
+	}
+	return coachResponse, nil
+}
+
+func (s *coachService) FindByGameID(gameID string) ([]dto.CoachResponse, error) {
 	coaches, err := s.coachRepo.FindByGameID(gameID)
 	if err != nil {
-		return coaches, err
+		return []dto.CoachResponse{}, err
 	}
-	return coaches, nil
+
+	var coachResponses []dto.CoachResponse
+	for _, coach := range coaches {
+		var coachAvailabilities []dto.CoachAvailabilityResponse
+		for _, ca := range coach.CoachAvailability {
+
+			coachAvailability := dto.CoachAvailabilityResponse{
+				ID:        ca.ID.String(),
+				Day:       ca.Day,
+				StartTime: ca.StartTime,
+				EndTime:   ca.EndTime,
+			}
+			coachAvailabilities = append(coachAvailabilities, coachAvailability)
+		}
+		coachResponse := dto.CoachResponse{
+			ID:                coach.ID.String(),
+			FirstName:         coach.User.FirstName,
+			LastName:          coach.User.LastName,
+			Position:          coach.Position,
+			Code:              coach.Code,
+			Price:             coach.Price,
+			UserID:            coach.UserID,
+			GameID:            coach.GameID,
+			CoachExperience:   coach.CoachExperience,
+			CoachAvailability: coachAvailabilities,
+		}
+		coachResponses = append(coachResponses, coachResponse)
+	}
+
+	return coachResponses, nil
 }
 
 func (s *coachService) Create(coach models.Coach) (dto.CoachResponse, error) {
@@ -83,11 +171,27 @@ func (s *coachService) Create(coach models.Coach) (dto.CoachResponse, error) {
 
 		coach.User.Role = "Coach"
 
+		if err := coach.User.HashPassword(coach.User.Password); err != nil {
+			return coachResponse, err
+		}
+
 	}
 
 	coach, err = s.coachRepo.Create(coach)
 	if err != nil {
 		return coachResponse, err
+	}
+
+	var coachAvailabilities []dto.CoachAvailabilityResponse
+
+	for _, ca := range coach.CoachAvailability {
+		coachAvailability := dto.CoachAvailabilityResponse{
+			ID:        ca.ID.String(),
+			Day:       ca.Day,
+			StartTime: ca.StartTime,
+			EndTime:   ca.EndTime,
+		}
+		coachAvailabilities = append(coachAvailabilities, coachAvailability)
 	}
 
 	coachResponse = dto.CoachResponse{
@@ -101,7 +205,7 @@ func (s *coachService) Create(coach models.Coach) (dto.CoachResponse, error) {
 		UserID:            coach.UserID,
 		GameID:            coach.GameID,
 		CoachExperience:   coach.CoachExperience,
-		CoachAvailability: coach.CoachAvailability,
+		CoachAvailability: coachAvailabilities,
 	}
 
 	return coachResponse, nil
@@ -111,6 +215,18 @@ func (s *coachService) Update(coach models.Coach, id string) (dto.CoachResponse,
 	coach, err := s.coachRepo.Update(coach, id)
 	if err != nil {
 		return dto.CoachResponse{}, err
+	}
+
+	var coachAvailabilities []dto.CoachAvailabilityResponse
+
+	for _, ca := range coach.CoachAvailability {
+		coachAvailability := dto.CoachAvailabilityResponse{
+			ID:        ca.ID.String(),
+			Day:       ca.Day,
+			StartTime: ca.StartTime,
+			EndTime:   ca.EndTime,
+		}
+		coachAvailabilities = append(coachAvailabilities, coachAvailability)
 	}
 
 	coachResponse := dto.CoachResponse{
@@ -124,7 +240,7 @@ func (s *coachService) Update(coach models.Coach, id string) (dto.CoachResponse,
 		UserID:            coach.UserID,
 		GameID:            coach.GameID,
 		CoachExperience:   coach.CoachExperience,
-		CoachAvailability: coach.CoachAvailability,
+		CoachAvailability: coachAvailabilities,
 	}
 
 	return coachResponse, nil

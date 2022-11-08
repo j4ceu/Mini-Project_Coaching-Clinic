@@ -2,16 +2,18 @@ package services
 
 import (
 	"Mini-Project_Coaching-Clinic/dto"
+	"Mini-Project_Coaching-Clinic/dto/payload"
+	"Mini-Project_Coaching-Clinic/helper"
 	"Mini-Project_Coaching-Clinic/models"
 	"Mini-Project_Coaching-Clinic/repositories"
 )
 
 type UserBookService interface {
-	FindAll() ([]models.UserBook, error)
-	FindByUserID(id string) ([]models.UserBook, error)
-	FindByID(id string) (models.UserBook, error)
-	Create(UserBook models.UserBook) (dto.UserBookResponse, error)
-	Update(UserBook models.UserBook, id string) (dto.UserBookResponse, error)
+	FindAll() ([]dto.UserBookResponse, error)
+	FindByUserID(id string) ([]dto.UserBookResponse, error)
+	FindByID(id string) (dto.UserBookResponse, error)
+	Create(userBook payload.UserBookPayloadCreate) (dto.UserBookResponse, error)
+	Update(userBook payload.UserBookPayloadUpdate, id string) (dto.UserBookResponse, error)
 	Delete(id string) (models.UserBook, error)
 }
 
@@ -26,32 +28,84 @@ func NewUserBookServices(userBookRepo repositories.UserBookRepository, userPayme
 	return &userBookService{userBookRepo, userPaymentRepo, coachAvailabilityRepo, coachRepo}
 }
 
-func (s *userBookService) FindAll() ([]models.UserBook, error) {
+func (s *userBookService) FindAll() ([]dto.UserBookResponse, error) {
 	userBooks, err := s.userBookRepo.FindAll()
 	if err != nil {
-		return userBooks, err
+		return []dto.UserBookResponse{}, err
 	}
-	return userBooks, nil
+
+	var userBookResponses []dto.UserBookResponse
+
+	for _, userBook := range userBooks {
+		userBookResponse := dto.UserBookResponse{
+			ID:                  userBook.ID.String(),
+			Title:               userBook.Title,
+			CoachAvailabilityID: userBook.CoachAvailabilityID,
+			UserPaymentID:       userBook.UserPaymentID,
+			Summary:             userBook.Summary,
+			Done:                userBook.Done,
+		}
+		userBookResponses = append(userBookResponses, userBookResponse)
+	}
+
+	return userBookResponses, nil
 }
 
-func (s *userBookService) FindByUserID(id string) ([]models.UserBook, error) {
+func (s *userBookService) FindByUserID(id string) ([]dto.UserBookResponse, error) {
 	userBooks, err := s.userPaymentRepo.FindUserBookByUserID(id)
 	if err != nil {
-		return userBooks, err
+		return []dto.UserBookResponse{}, err
 	}
-	return userBooks, nil
+	var userBookResponses []dto.UserBookResponse
+
+	for _, userBook := range userBooks {
+		userBookResponse := dto.UserBookResponse{
+			ID:                  userBook.ID.String(),
+			Title:               userBook.Title,
+			CoachAvailabilityID: userBook.CoachAvailabilityID,
+			UserPaymentID:       userBook.UserPaymentID,
+			Summary:             userBook.Summary,
+			Done:                userBook.Done,
+		}
+		userBookResponses = append(userBookResponses, userBookResponse)
+	}
+	return userBookResponses, nil
 }
 
-func (s *userBookService) FindByID(id string) (models.UserBook, error) {
+func (s *userBookService) FindByID(id string) (dto.UserBookResponse, error) {
 	userBook, err := s.userBookRepo.FindByID(id)
 	if err != nil {
-		return userBook, err
+		return dto.UserBookResponse{}, err
 	}
-	return userBook, nil
+	coachAvailabilityResponse := dto.CoachAvailabilityResponse{
+		ID:        userBook.CoachAvailability.ID.String(),
+		CoachID:   userBook.CoachAvailability.CoachID,
+		Day:       userBook.CoachAvailability.Day,
+		StartTime: userBook.CoachAvailability.StartTime,
+		EndTime:   userBook.CoachAvailability.EndTime,
+	}
+
+	userBookResponse := dto.UserBookResponse{
+		ID:                  userBook.ID.String(),
+		Title:               userBook.Title,
+		CoachAvailabilityID: userBook.CoachAvailabilityID,
+		Summary:             userBook.Summary,
+		UserPaymentID:       userBook.UserPaymentID,
+		Done:                userBook.Done,
+		CoachAvailability:   &coachAvailabilityResponse,
+	}
+	return userBookResponse, nil
 }
 
-func (s *userBookService) Create(userBook models.UserBook) (dto.UserBookResponse, error) {
-	userBook, err := s.userBookRepo.Create(userBook)
+func (s *userBookService) Create(userBookPayload payload.UserBookPayloadCreate) (dto.UserBookResponse, error) {
+
+	userBookModel := models.UserBook{
+		Title:               userBookPayload.Title,
+		CoachAvailabilityID: userBookPayload.CoachAvailabilityID,
+		UserPaymentID:       userBookPayload.UserPaymentID,
+	}
+
+	userBook, err := s.userBookRepo.Create(userBookModel)
 	if err != nil {
 		return dto.UserBookResponse{}, err
 	}
@@ -100,14 +154,36 @@ func (s *userBookService) Create(userBook models.UserBook) (dto.UserBookResponse
 		CoachAvailabilityID: userBook.CoachAvailabilityID,
 		Summary:             userBook.Summary,
 		Done:                userBook.Done,
-		CoachAvailability:   coachAvailabilityResponse,
+		UserPaymentID:       userBook.UserPaymentID,
+		CoachAvailability:   &coachAvailabilityResponse,
 	}
 
 	return userBookResponse, nil
 }
 
-func (s *userBookService) Update(userBookUpdate models.UserBook, id string) (dto.UserBookResponse, error) {
-	userBook, err := s.userBookRepo.Update(userBookUpdate, id)
+func (s *userBookService) Update(userBookPayload payload.UserBookPayloadUpdate, id string) (dto.UserBookResponse, error) {
+
+	userBookModel := models.UserBook{
+		Title:               userBookPayload.Title,
+		CoachAvailabilityID: userBookPayload.CoachAvailabilityID,
+		UserPaymentID:       userBookPayload.UserPaymentID,
+	}
+
+	if userBookPayload.Done != nil {
+		userBookModel.Done = *userBookPayload.Done
+	}
+	if userBookPayload.Summary != nil {
+		fileName, buf, err := helper.OpenFileFromMultipartForm(userBookPayload.Summary)
+		if err != nil {
+			return dto.UserBookResponse{}, err
+		}
+
+		url := helper.UploadFileToFirebase(*buf, fileName)
+
+		userBookModel.Summary = url
+	}
+
+	userBook, err := s.userBookRepo.Update(userBookModel, id)
 	if err != nil {
 		return dto.UserBookResponse{}, err
 	}
@@ -125,7 +201,8 @@ func (s *userBookService) Update(userBookUpdate models.UserBook, id string) (dto
 		CoachAvailabilityID: userBook.CoachAvailabilityID,
 		Summary:             userBook.Summary,
 		Done:                userBook.Done,
-		CoachAvailability:   coachAvailabilityResponse,
+		UserPaymentID:       userBook.UserPaymentID,
+		CoachAvailability:   &coachAvailabilityResponse,
 	}
 
 	return userBookResponse, nil

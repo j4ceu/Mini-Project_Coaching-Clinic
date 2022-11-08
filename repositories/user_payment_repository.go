@@ -8,6 +8,7 @@ import (
 
 type UserPaymentRepository interface {
 	FindAll() ([]models.UserPayment, error)
+	FindByInvoiceNumber(invoiceNumber string) (models.UserPayment, error)
 	FindByID(id string) (models.UserPayment, error)
 	FindByPaidAndProofOfPaymentIsNotNull() ([]models.UserPayment, error)
 	FindUserBookByUserID(id string) ([]models.UserBook, error)
@@ -36,7 +37,7 @@ func (r *userPaymentRepo) FindAll() ([]models.UserPayment, error) {
 
 func (r *userPaymentRepo) FindUserBookByUserID(id string) ([]models.UserBook, error) {
 	var userPayment models.UserPayment
-	err := r.db.Where("user_id = ?", id).Find(&userPayment).Preload("UserBook").Error
+	err := r.db.Where("user_id = ?", id).Preload("UserBook").Find(&userPayment).Error
 	if err != nil {
 		return []models.UserBook{}, err
 	}
@@ -45,7 +46,7 @@ func (r *userPaymentRepo) FindUserBookByUserID(id string) ([]models.UserBook, er
 
 func (r *userPaymentRepo) FindByPaidAndProofOfPaymentIsNotNull() ([]models.UserPayment, error) {
 	var userPayments []models.UserPayment
-	err := r.db.Where("paid = ? AND proof_of_payment IS NOT NULL", false).Find(&userPayments).Error
+	err := r.db.Where("paid = ? AND proof_of_payment IS NOT NULL", false).Preload("UserBook").Find(&userPayments).Error
 	if err != nil {
 		return userPayments, err
 	}
@@ -90,6 +91,15 @@ func (r *userPaymentRepo) Delete(id string) (models.UserPayment, error) {
 func (r *userPaymentRepo) FindByIDWithAllRelationUserBook(id string) (models.UserPayment, error) {
 	var userPayment models.UserPayment
 	err := r.db.Where("id = ?", id).Preload("User").Preload("UserBook").Preload("UserBook.CoachAvailability").Preload("UserBook.CoachAvailability.Coach").First(&userPayment).Error
+	if err != nil {
+		return userPayment, err
+	}
+	return userPayment, nil
+}
+
+func (r *userPaymentRepo) FindByInvoiceNumber(invoiceNumber string) (models.UserPayment, error) {
+	var userPayment models.UserPayment
+	err := r.db.Where("invoice_number = ?", invoiceNumber).Preload("UserBook").First(&userPayment).Error
 	if err != nil {
 		return userPayment, err
 	}

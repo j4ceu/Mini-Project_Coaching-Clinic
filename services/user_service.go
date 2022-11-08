@@ -3,6 +3,7 @@ package services
 import (
 	"Mini-Project_Coaching-Clinic/dto"
 	"Mini-Project_Coaching-Clinic/middlewares"
+	"errors"
 
 	"Mini-Project_Coaching-Clinic/models"
 	"Mini-Project_Coaching-Clinic/repositories"
@@ -35,6 +36,11 @@ func (s *userService) FindByID(id string) (models.User, error) {
 
 func (s *userService) Create(user models.User) (models.User, error) {
 	user.Role = "User" // set role default to User
+
+	if err := user.HashPassword(user.Password); err != nil {
+		return models.User{}, err
+	}
+
 	user, err := s.repository.Create(user)
 	if err != nil {
 		return user, err
@@ -51,6 +57,11 @@ func (s *userService) FindAll() ([]models.User, error) {
 }
 
 func (s *userService) Update(user models.User, id string) (models.User, error) {
+	if user.Password != "" {
+		if err := user.HashPassword(user.Password); err != nil {
+			return models.User{}, err
+		}
+	}
 	user, err := s.repository.Update(user, id)
 	if err != nil {
 		return user, err
@@ -67,9 +78,14 @@ func (s *userService) Delete(id string) (models.User, error) {
 }
 
 func (s *userService) LoginUser(email string, password string) (dto.UserResponse, error) {
-	user, err := s.repository.FindByEmailAndPassword(email, password)
+	user, err := s.repository.FindByEmail(email)
 	if err != nil {
 		return dto.UserResponse{}, err
+	}
+
+	credentialError := user.CheckPassword(password)
+	if credentialError != nil {
+		return dto.UserResponse{}, errors.New("Invalid email or password")
 	}
 
 	token, err := middlewares.CreateToken(user.ID.String(), user.Role)

@@ -6,6 +6,7 @@ import (
 	"Mini-Project_Coaching-Clinic/services"
 	"net/http"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
@@ -54,6 +55,16 @@ func (u *userController) UpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, baseResponse)
 	}
 
+	token := c.Get("token").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	userID := claims["user_id"].(string)
+	role := claims["role"].(string)
+
+	if userID != idReq && role != "Admin" {
+		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusUnauthorized, dto.EmptyObj{}, "unauthorized")
+		return c.JSON(http.StatusUnauthorized, baseResponse)
+	}
+
 	if err := c.Bind(&user); err != nil {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusBadRequest, dto.EmptyObj{}, err.Error())
 		return c.JSON(http.StatusBadRequest, baseResponse)
@@ -75,6 +86,16 @@ func (u *userController) DeleteUser(c echo.Context) error {
 	if idReq == "" {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusBadRequest, dto.EmptyObj{}, "id is required")
 		return c.JSON(http.StatusBadRequest, baseResponse)
+	}
+
+	token := c.Get("token").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	userID := claims["user_id"].(string)
+	role := claims["role"].(string)
+
+	if userID != idReq && role != "Admin" {
+		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusUnauthorized, dto.EmptyObj{}, "unauthorized")
+		return c.JSON(http.StatusUnauthorized, baseResponse)
 	}
 
 	_, err := u.userService.Delete(idReq)

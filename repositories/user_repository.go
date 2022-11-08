@@ -12,7 +12,7 @@ type UserRepositories interface {
 	FindAll() ([]models.User, error)
 	Update(user models.User, id string) (models.User, error)
 	Delete(id string) (models.User, error)
-	FindByEmailAndPassword(email string, password string) (models.User, error)
+	FindByEmail(email string) (models.User, error)
 }
 
 type userRepo struct {
@@ -67,9 +67,9 @@ func (r *userRepo) Delete(id string) (models.User, error) {
 	return r.FindByID(id)
 }
 
-func (r *userRepo) FindByEmailAndPassword(email string, password string) (models.User, error) {
+func (r *userRepo) FindByEmail(email string) (models.User, error) {
 	var user models.User
-	err := r.db.Where("email = ? AND password = ?", email, password).First(&user).Error
+	err := r.db.Where("email = ?", email).First(&user).Error
 	if err != nil {
 		return user, err
 	}

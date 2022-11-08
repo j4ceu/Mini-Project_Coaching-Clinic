@@ -6,5 +6,6 @@ type UserBookResponse struct {
 	CoachAvailabilityID string                    `json:"coach_availability_id"`
 	Summary             string                    `json:"summary,omitempty"`
 	Done                bool                      `json:"done,omitempty"`
-	CoachAvailability   CoachAvailabilityResponse `json:"coach_availability,omitempty"`
+	UserPaymentID       string                    `json:"user_payment_id,omitempty"`
+	CoachAvailability   *CoachAvailabilityResponse `json:"coach_availability,omitempty"`
 }

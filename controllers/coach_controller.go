@@ -14,6 +14,7 @@ import (
 type CoachController interface {
 	FindCoachByID(c echo.Context) error
 	FindCoachByGameID(c echo.Context) error
+	FindCoachByCode(c echo.Context) error
 	CreateCoach(c echo.Context) error
 	UpdateCoach(c echo.Context) error
 	DeleteCoach(c echo.Context) error
@@ -129,5 +130,23 @@ func (co *coachController) FindCoachByGameID(c echo.Context) error {
 	}
 
 	baseResponse := dto.ConvertToBaseResponse("success get coach by game id", http.StatusOK, coach)
+	return c.JSON(http.StatusOK, baseResponse)
+}
+
+func (co *coachController) FindCoachByCode(c echo.Context) error {
+	codeReq := c.Param("code")
+
+	if codeReq == "" {
+		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusBadRequest, dto.EmptyObj{}, "code is required")
+		return c.JSON(http.StatusBadRequest, baseResponse)
+	}
+
+	coach, err := co.coachService.FindByCode(codeReq)
+	if err != nil {
+		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusInternalServerError, dto.EmptyObj{}, err.Error())
+		return c.JSON(http.StatusInternalServerError, baseResponse)
+	}
+
+	baseResponse := dto.ConvertToBaseResponse("success get coach by code", http.StatusOK, coach)
 	return c.JSON(http.StatusOK, baseResponse)
 }

@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"Mini-Project_Coaching-Clinic/dto"
-	"Mini-Project_Coaching-Clinic/models"
+	"Mini-Project_Coaching-Clinic/dto/payload"
 	"Mini-Project_Coaching-Clinic/services"
 	"net/http"
 
@@ -29,7 +29,7 @@ func NewUserBookController(userBookService services.UserBookService, userPayment
 }
 
 func (ub *userBookController) CreateUserBook(c echo.Context) error {
-	var userBook models.UserBook
+	var userBook payload.UserBookPayloadCreate
 	if err := c.Bind(&userBook); err != nil {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusBadRequest, dto.EmptyObj{}, err.Error())
 		return c.JSON(http.StatusBadRequest, baseResponse)
@@ -46,7 +46,7 @@ func (ub *userBookController) CreateUserBook(c echo.Context) error {
 }
 
 func (ub *userBookController) UpdateUserBook(c echo.Context) error {
-	var userBook models.UserBook
+	var userBook payload.UserBookPayloadUpdate
 	idReq := c.Param("id")
 
 	if idReq == "" {
@@ -57,6 +57,18 @@ func (ub *userBookController) UpdateUserBook(c echo.Context) error {
 	if err := c.Bind(&userBook); err != nil {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusBadRequest, dto.EmptyObj{}, err.Error())
 		return c.JSON(http.StatusBadRequest, baseResponse)
+	}
+
+	file, err := c.FormFile("summary")
+	if err != nil {
+		if err == http.ErrMissingFile {
+			userBook.Summary = nil
+		} else {
+			baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusBadRequest, dto.EmptyObj{}, err.Error())
+			return c.JSON(http.StatusBadRequest, baseResponse)
+		}
+	} else {
+		userBook.Summary = file
 	}
 
 	userBookUpdate, err := ub.userBookService.Update(userBook, idReq)

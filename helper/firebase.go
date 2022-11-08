@@ -5,7 +5,9 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/url"
 
 	firebase "firebase.google.com/go/v4"
@@ -61,4 +63,24 @@ func UploadFileToFirebase(buf bytes.Buffer, fileName string) string {
 	url, _ := url.Parse(fmt.Sprintf("https://firebasestorage.googleapis.com/v0/b/%s/o/%s?alt=media&token=%s", wc.Attrs().Name, fileName, wc.Metadata["firebaseStorageDownloadTokens"]))
 	return url.String()
 
+}
+
+func OpenFileFromMultipartForm(file *multipart.FileHeader) (string, *bytes.Buffer, error) {
+	fileUpload, err := file.Open()
+
+	if err != nil {
+		log.Println(string("\033[31m"), err.Error())
+		return file.Filename, &bytes.Buffer{}, err
+	}
+
+	defer fileUpload.Close()
+
+	byteContainer, err := ioutil.ReadAll(fileUpload)
+	if err != nil {
+		return file.Filename, &bytes.Buffer{}, err
+	}
+
+	buf := bytes.NewBuffer(byteContainer)
+
+	return file.Filename, buf, nil
 }
