@@ -22,13 +22,12 @@ func initDatabase() {
 	}
 
 	log.Println("Koneksi DB Berhasil")
-
 	initMigrate()
 
 }
 
 func initMigrate() {
-	err := DB.AutoMigrate(&models.User{}, &models.Coach{}, &models.Game{}, &models.CoachExperience{}, &models.CoachAvailability{}) // Migrate the schema
+	err := DB.AutoMigrate(&models.User{}, &models.Coach{}, &models.Game{}, &models.CoachExperience{}, &models.CoachAvailability{}, &models.UserPayment{}, &models.UserBook{}) // Migrate the schema
 	if err != nil {
 		log.Fatal("Migration Gagal")
 	} else {

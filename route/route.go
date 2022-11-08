@@ -4,6 +4,7 @@ import (
 	"Mini-Project_Coaching-Clinic/configs"
 	"Mini-Project_Coaching-Clinic/constant"
 	"Mini-Project_Coaching-Clinic/middlewares"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -16,6 +17,9 @@ func NewRouter() *echo.Echo {
 	e.GET(constant.ENDPOINT_USERS, configs.UserController.GetAllUser)          // Get All User
 	e.POST(constant.ENDPOINT_USER_LOGIN, configs.UserController.LoginUser)     // Login User
 	e.POST(constant.ENDPOINT_USER_REGISTER, configs.UserController.CreateUser) // Register User
+
+	fs := http.FileServer(http.Dir("./upload/invoices"))
+	e.GET("/invoices/*", echo.WrapHandler(http.StripPrefix("/invoices/", fs)))
 
 	auth := e.Group("/auth", middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte("jace"),
@@ -49,6 +53,21 @@ func NewRouter() *echo.Echo {
 	auth.POST(constant.ENDPOINT_COACH_EXPERIENCE_CREATE, configs.CoachExperienceController.CreateCoachExperience, middlewares.UnauthorizedRole([]string{"User"}))   // Create Coach Experience
 	auth.PUT(constant.ENDPOINT_COACH_EXPERIENCE_UPDATE, configs.CoachExperienceController.UpdateCoachExperience, middlewares.UnauthorizedRole([]string{"User"}))    // Update Coach Experience
 	auth.DELETE(constant.ENDPOINT_COACH_EXPERIENCE_DELETE, configs.CoachExperienceController.DeleteCoachExperience, middlewares.UnauthorizedRole([]string{"User"})) // Delete Coach Experience
+
+	//User Book Router With Auth
+	auth.POST(constant.ENDPOINT_USER_BOOK_CREATE, configs.UserBookController.CreateUserBook)                                                   // Create User Book
+	auth.PUT(constant.ENDPOINT_USER_BOOK_UPDATE, configs.UserBookController.UpdateUserBook, middlewares.UnauthorizedRole([]string{"User"}))    // Update User Book
+	auth.DELETE(constant.ENDPOINT_USER_BOOK_DELETE, configs.UserBookController.DeleteUserBook, middlewares.UnauthorizedRole([]string{"User"})) // Delete User Book
+	auth.GET(constant.ENDPOINT_USER_BOOKS, configs.UserBookController.FindAllUserBook, middlewares.UnauthorizedRole([]string{"User"}))         // Find All User Book
+	auth.GET(constant.ENDPOINT_USER_BOOK_GETBYUSERID, configs.UserBookController.FindUserBookByUserID)                                         // Find User Book By User ID
+	auth.GET(constant.ENDPOINT_USER_BOOK_DETAIL, configs.UserBookController.FindUserBookById)                                                  // Find User Book By ID
+
+	//User Payment Router With Auth
+	auth.POST(constant.ENDPOINT_USER_PAYMENT_CREATE, configs.UserPaymentController.CreateUserPayment)                                                   // Create User Payment
+	auth.PUT(constant.ENDPOINT_USER_PAYMENT_UPDATE, configs.UserPaymentController.UpdateUserPayment)                                                    // Update User Payment
+	auth.DELETE(constant.ENDPOINT_USER_PAYMENT_DELETE, configs.UserPaymentController.DeleteUserPayment, middlewares.UnauthorizedRole([]string{"User"})) // Delete User Payment
+	auth.GET(constant.ENDPOINT_USER_PAYMENTS, configs.UserPaymentController.FindAllUserPayment, middlewares.UnauthorizedRole([]string{"User"}))         // Find All User Payment
+	auth.GET(constant.ENDPOINT_USER_PAYMENT_DETAIL, configs.UserPaymentController.FindUserPaymentById)                                                  // Find User Payment By User ID
 
 	return e
 }

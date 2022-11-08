@@ -33,4 +33,19 @@ const (
 	ENDPOINT_COACH_EXPERIENCE_UPDATE = "/coach/experience/:id" // :id adalah parameter yang akan diisi oleh user
 	ENDPOINT_COACH_EXPERIENCE_DELETE = "/coach/experience/:id" // :id adalah parameter yang akan diisi oleh user
 
+	// Endpoint User Book
+	ENDPOINT_USER_BOOKS            = "/user/books"
+	ENDPOINT_USER_BOOK_CREATE      = "/user/book"
+	ENDPOINT_USER_BOOK_GETBYUSERID = "/user/book/user/:id" // :id adalah parameter yang akan diisi oleh user
+	ENDPOINT_USER_BOOK_UPDATE      = "/user/book/:id"      // :id adalah parameter yang akan diisi oleh user
+	ENDPOINT_USER_BOOK_DELETE      = "/user/book/:id"      // :id adalah parameter yang akan diisi oleh user
+	ENDPOINT_USER_BOOK_DETAIL      = "/user/book/:id"      // :id adalah parameter yang akan diisi oleh user
+
+	// Endpoint User Payment
+	ENDPOINT_USER_PAYMENTS       = "/user/payments"
+	ENDPOINT_USER_PAYMENT_CREATE = "/user/payment"
+	ENDPOINT_USER_PAYMENT_UPDATE = "/user/payment/:id" // :id adalah parameter yang akan diisi oleh user
+	ENDPOINT_USER_PAYMENT_DELETE = "/user/payment/:id" // :id adalah parameter yang akan diisi oleh user
+	ENDPOINT_USER_PAYMENT_DETAIL = "/user/payment/:id" // :id adalah parameter yang akan diisi oleh user
+
 )
