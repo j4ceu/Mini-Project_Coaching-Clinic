@@ -4,6 +4,7 @@ import (
 	"Mini-Project_Coaching-Clinic/models"
 	"Mini-Project_Coaching-Clinic/repositories"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -74,14 +75,20 @@ func (s *coachAvailabilityService) CheckInterval(coachAvailability models.CoachA
 		return false, err
 	}
 
+	startTime = startTime / 100
+
 	endTime, err := strconv.Atoi(strings.ReplaceAll(coachAvailability.EndTime, ":", ""))
 	if err != nil {
 		return false, err
 	}
 
-	if endTime-startTime == 1 {
-		return false, errors.New("Time interval must be at least 1 hour")
+	endTime = endTime / 100
+
+	if endTime-startTime != 1 {
+		return false, errors.New("Time interval must be 1 hour")
 	}
+
+	fmt.Println(startTime, endTime)
 
 	return true, nil
 }

@@ -16,7 +16,7 @@ type UserPaymentController interface {
 	DeleteUserPayment(c echo.Context) error
 	FindUserPaymentById(c echo.Context) error
 	FindAllUserPayment(c echo.Context) error
-	FindAllUserPaymentPaid(c echo.Context) error
+	FindAllUserPaymentByPaid(c echo.Context) error
 	FindUserPaymentByInvoice(c echo.Context) error
 }
 
@@ -148,7 +148,7 @@ func (up *userPaymentController) FindUserPaymentById(c echo.Context) error {
 func (up *userPaymentController) FindAllUserPayment(c echo.Context) error {
 	paid := c.QueryParam("paid")
 	if paid == "false" {
-		return up.FindAllUserPaymentPaid(c)
+		return up.FindAllUserPaymentByPaid(c)
 	}
 
 	userPayment, err := up.userPaymentService.FindAll()
@@ -161,14 +161,14 @@ func (up *userPaymentController) FindAllUserPayment(c echo.Context) error {
 	return c.JSON(http.StatusOK, baseResponse)
 }
 
-func (up *userPaymentController) FindAllUserPaymentPaid(c echo.Context) error {
+func (up *userPaymentController) FindAllUserPaymentByPaid(c echo.Context) error {
 	userPayment, err := up.userPaymentService.FindByPaidAndProofOfPaymentIsNotNull()
 	if err != nil {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusInternalServerError, dto.EmptyObj{}, err.Error())
 		return c.JSON(http.StatusInternalServerError, baseResponse)
 	}
 
-	baseResponse := dto.ConvertToBaseResponse("success get all user payment paid", http.StatusOK, userPayment)
+	baseResponse := dto.ConvertToBaseResponse("success get all user payment by paid", http.StatusOK, userPayment)
 	return c.JSON(http.StatusOK, baseResponse)
 }
 
