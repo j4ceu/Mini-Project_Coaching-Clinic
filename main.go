@@ -9,7 +9,8 @@ import (
 func main() {
 	configs.Init()
 
-	e := route.NewRouter()                     // Init Router
-	e.Logger.Fatal(e.Start(os.Getenv("PORT"))) // Start Server
+	e := route.NewRouter() // Init Router
+	port := os.Getenv("PORT")
+	e.Logger.Fatal(e.Start(":" + port)) // Start Server
 
 }
