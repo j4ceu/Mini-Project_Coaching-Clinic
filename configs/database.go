@@ -22,7 +22,7 @@ func initDatabase() {
 	}
 
 	log.Println("Koneksi DB Berhasil")
-	// initMigrate()
+	initMigrate()
 
 }
 
