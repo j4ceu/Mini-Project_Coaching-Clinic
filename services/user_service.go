@@ -62,6 +62,11 @@ func (s *userService) Update(user models.User, id string) (models.User, error) {
 			return models.User{}, err
 		}
 	}
+
+	if user.Role == "" {
+		user.Role = ""
+	}
+
 	user, err := s.repository.Update(user, id)
 	if err != nil {
 		return user, err
