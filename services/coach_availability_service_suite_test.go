@@ -1,6 +1,7 @@
 package services
 
 import (
+	"Mini-Project_Coaching-Clinic/dto"
 	"Mini-Project_Coaching-Clinic/models"
 	"Mini-Project_Coaching-Clinic/repositories/mock"
 	"errors"
@@ -25,14 +26,15 @@ func (s *suiteCoachAvailability) TestFindByID() {
 
 	testCase := []struct {
 		Name           string
-		ExpectedReturn models.CoachAvailability
+		ExpectedReturn dto.CoachAvailabilityResponse
 		ExpectedError  error
 		MockReturn     models.CoachAvailability
 		MockError      error
 	}{
 		{
 			Name: "Success",
-			ExpectedReturn: models.CoachAvailability{
+			ExpectedReturn: dto.CoachAvailabilityResponse{
+				ID:        "00000000-0000-0000-0000-000000000000",
 				StartTime: "12:00",
 				EndTime:   "13:00",
 			},
@@ -45,7 +47,7 @@ func (s *suiteCoachAvailability) TestFindByID() {
 		},
 		{
 			Name:           "Error",
-			ExpectedReturn: models.CoachAvailability{},
+			ExpectedReturn: dto.CoachAvailabilityResponse{},
 			ExpectedError:  errors.New("Error"),
 			MockReturn:     models.CoachAvailability{},
 			MockError:      errors.New("Error"),
@@ -66,14 +68,15 @@ func (s *suiteCoachAvailability) TestCreateCoachAvailability() {
 
 	testCase := []struct {
 		Name           string
-		ExpectedReturn models.CoachAvailability
+		ExpectedReturn dto.CoachAvailabilityResponse
 		ExpectedError  error
 		MockReturn     models.CoachAvailability
 		MockError      error
 	}{
 		{
 			Name: "Success",
-			ExpectedReturn: models.CoachAvailability{
+			ExpectedReturn: dto.CoachAvailabilityResponse{
+				ID:        "00000000-0000-0000-0000-000000000000",
 				StartTime: "12:00",
 				EndTime:   "13:00",
 			},
@@ -86,7 +89,7 @@ func (s *suiteCoachAvailability) TestCreateCoachAvailability() {
 		},
 		{
 			Name:           "Error",
-			ExpectedReturn: models.CoachAvailability{},
+			ExpectedReturn: dto.CoachAvailabilityResponse{},
 			ExpectedError:  errors.New("Error"),
 			MockReturn: models.CoachAvailability{
 				StartTime: "12:00",
@@ -96,16 +99,16 @@ func (s *suiteCoachAvailability) TestCreateCoachAvailability() {
 		},
 		{
 			Name:           "Error Interval",
-			ExpectedReturn: models.CoachAvailability{},
-			ExpectedError:  &strconv.NumError{Func: "Atoi", Num: "", Err: errors.New("invalid syntax")},
+			ExpectedReturn: dto.CoachAvailabilityResponse{},
+			ExpectedError:  &strconv.NumError{Func: "ParseFloat", Num: "", Err: errors.New("invalid syntax")},
 			MockReturn:     models.CoachAvailability{},
-			MockError:      &strconv.NumError{Func: "Atoi", Num: "", Err: errors.New("invalid syntax")},
+			MockError:      &strconv.NumError{Func: "ParseFloat", Num: "", Err: errors.New("invalid syntax")},
 		},
 	}
 
 	for _, tc := range testCase {
 		s.Run(tc.Name, func() {
-			s.mockCoachAvailabilityRepository.On("Create", tc.MockReturn).Return(tc.ExpectedReturn, tc.MockError).Once()
+			s.mockCoachAvailabilityRepository.On("Create", tc.MockReturn).Return(tc.MockReturn, tc.MockError).Once()
 			result, err := s.coachAvailabilityService.Create(tc.MockReturn)
 			s.Equal(tc.ExpectedReturn, result)
 			s.Equal(tc.ExpectedError, err)
@@ -118,14 +121,15 @@ func (s *suiteCoachAvailability) TestUpdateCoachAvailability() {
 
 	testCase := []struct {
 		Name           string
-		ExpectedReturn models.CoachAvailability
+		ExpectedReturn dto.CoachAvailabilityResponse
 		ExpectedError  error
 		MockReturn     models.CoachAvailability
 		MockError      error
 	}{
 		{
 			Name: "Success",
-			ExpectedReturn: models.CoachAvailability{
+			ExpectedReturn: dto.CoachAvailabilityResponse{
+				ID:        "00000000-0000-0000-0000-000000000000",
 				StartTime: "12:00",
 				EndTime:   "13:00",
 			},
@@ -138,7 +142,7 @@ func (s *suiteCoachAvailability) TestUpdateCoachAvailability() {
 		},
 		{
 			Name:           "Error",
-			ExpectedReturn: models.CoachAvailability{},
+			ExpectedReturn: dto.CoachAvailabilityResponse{},
 			ExpectedError:  errors.New("Error"),
 			MockReturn: models.CoachAvailability{
 				StartTime: "12:00",
@@ -148,16 +152,16 @@ func (s *suiteCoachAvailability) TestUpdateCoachAvailability() {
 		},
 		{
 			Name:           "Error Interval",
-			ExpectedReturn: models.CoachAvailability{},
-			ExpectedError:  &strconv.NumError{Func: "Atoi", Num: "", Err: errors.New("invalid syntax")},
+			ExpectedReturn: dto.CoachAvailabilityResponse{},
+			ExpectedError:  &strconv.NumError{Func: "ParseFloat", Num: "", Err: errors.New("invalid syntax")},
 			MockReturn:     models.CoachAvailability{},
-			MockError:      &strconv.NumError{Func: "Atoi", Num: "", Err: errors.New("invalid syntax")},
+			MockError:      &strconv.NumError{Func: "ParseFloat", Num: "", Err: errors.New("invalid syntax")},
 		},
 	}
 
 	for _, tc := range testCase {
 		s.Run(tc.Name, func() {
-			s.mockCoachAvailabilityRepository.On("Update", tc.MockReturn, "1").Return(tc.ExpectedReturn, tc.MockError).Once()
+			s.mockCoachAvailabilityRepository.On("Update", tc.MockReturn, "1").Return(tc.MockReturn, tc.MockError).Once()
 			result, err := s.coachAvailabilityService.Update(tc.MockReturn, "1")
 			s.Equal(tc.ExpectedReturn, result)
 			s.Equal(tc.ExpectedError, err)
@@ -234,9 +238,9 @@ func (s *suiteCoachAvailability) TestCheckInterval() {
 		{
 			Name:           "Error",
 			ExpectedReturn: false,
-			ExpectedError:  &strconv.NumError{Func: "Atoi", Num: "", Err: errors.New("invalid syntax")},
+			ExpectedError:  &strconv.NumError{Func: "ParseFloat", Num: "", Err: errors.New("invalid syntax")},
 			MockReturn:     false,
-			MockError:      &strconv.NumError{Func: "Atoi", Num: "", Err: errors.New("invalid syntax")},
+			MockError:      &strconv.NumError{Func: "ParseFloat", Num: "", Err: errors.New("invalid syntax")},
 			Payload: models.CoachAvailability{
 				StartTime: "",
 				EndTime:   "13:00",
@@ -245,9 +249,9 @@ func (s *suiteCoachAvailability) TestCheckInterval() {
 		{
 			Name:           "Error",
 			ExpectedReturn: false,
-			ExpectedError:  &strconv.NumError{Func: "Atoi", Num: "", Err: errors.New("invalid syntax")},
+			ExpectedError:  &strconv.NumError{Func: "ParseFloat", Num: "", Err: errors.New("invalid syntax")},
 			MockReturn:     false,
-			MockError:      &strconv.NumError{Func: "Atoi", Num: "", Err: errors.New("invalid syntax")},
+			MockError:      &strconv.NumError{Func: "ParseFloat", Num: "", Err: errors.New("invalid syntax")},
 			Payload: models.CoachAvailability{
 				StartTime: "12:00",
 				EndTime:   "",

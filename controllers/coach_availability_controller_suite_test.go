@@ -80,7 +80,7 @@ func (s *suiteCoachAvailability) TestCreateCoachAvailability() {
 
 	for _, tc := range testCase {
 		s.Run(tc.Name, func() {
-			s.mock.On("Create", models.CoachAvailability{Day: "Senin", StartTime: "12:00", EndTime: "13:00", CoachID: "1"}).Return(models.CoachAvailability{Day: "Senin", StartTime: "12:00", EndTime: "13:00", CoachID: "1"}, tc.FunctionError).Once()
+			s.mock.On("Create", models.CoachAvailability{Day: "Senin", StartTime: "12:00", EndTime: "13:00", CoachID: "1"}).Return(dto.CoachAvailabilityResponse{Day: "Senin", StartTime: "12:00", EndTime: "13:00", CoachID: "1"}, tc.FunctionError).Once()
 
 			req := httptest.NewRequest(tc.Method, "/", strings.NewReader(tc.RequestBody))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -196,7 +196,7 @@ func (s *suiteCoachAvailability) TestUpdateAvailability() {
 
 	for _, tc := range testCase {
 		s.Run(tc.Name, func() {
-			s.mock.On("Update", models.CoachAvailability{Day: "Senin", StartTime: "12:00", EndTime: "13:00", CoachID: "1"}, "1").Return(models.CoachAvailability{Day: "Senin", StartTime: "12:00", EndTime: "13:00", CoachID: "1"}, tc.FunctionError).Once()
+			s.mock.On("Update", models.CoachAvailability{Day: "Senin", StartTime: "12:00", EndTime: "13:00", CoachID: "1"}, "1").Return(dto.CoachAvailabilityResponse{Day: "Senin", StartTime: "12:00", EndTime: "13:00", CoachID: "1"}, tc.FunctionError).Once()
 
 			req := httptest.NewRequest(tc.Method, "/", strings.NewReader(tc.RequestBody))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -300,7 +300,7 @@ func (s *suiteCoachAvailability) TestDeleteCoachAvailability() {
 
 	for _, tc := range testCase {
 		s.Run(tc.Name, func() {
-			s.mock.On("Delete", "1").Return(models.CoachAvailability{},tc.FunctionError).Once()
+			s.mock.On("Delete", "1").Return(models.CoachAvailability{}, tc.FunctionError).Once()
 
 			req := httptest.NewRequest(tc.Method, "/", strings.NewReader(tc.RequestBody))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)

@@ -1,6 +1,7 @@
 package services
 
 import (
+	"Mini-Project_Coaching-Clinic/dto"
 	"Mini-Project_Coaching-Clinic/models"
 	"Mini-Project_Coaching-Clinic/repositories"
 	"errors"
@@ -10,9 +11,9 @@ import (
 )
 
 type CoachAvailabilityService interface {
-	FindByID(id string) (models.CoachAvailability, error)
-	Create(coachAvailability models.CoachAvailability) (models.CoachAvailability, error)
-	Update(coachAvailability models.CoachAvailability, id string) (models.CoachAvailability, error)
+	FindByID(id string) (dto.CoachAvailabilityResponse, error)
+	Create(coachAvailability models.CoachAvailability) (dto.CoachAvailabilityResponse, error)
+	Update(coachAvailability models.CoachAvailability, id string) (dto.CoachAvailabilityResponse, error)
 	Delete(id string) (models.CoachAvailability, error)
 	CheckInterval(coachAvailability models.CoachAvailability) (bool, error)
 }
@@ -25,40 +26,64 @@ func NewCoachAvailabilityService(coachAvailabilityRepo repositories.CoachAvailab
 	return &coachAvailabilityService{coachAvailabilityRepo}
 }
 
-func (s *coachAvailabilityService) FindByID(id string) (models.CoachAvailability, error) {
+func (s *coachAvailabilityService) FindByID(id string) (dto.CoachAvailabilityResponse, error) {
 	coachAvailability, err := s.coachAvailabilityRepo.FindByID(id)
 	if err != nil {
-		return coachAvailability, err
+		return dto.CoachAvailabilityResponse{}, err
 	}
-	return coachAvailability, nil
+	coachAvailabilityResponse := dto.CoachAvailabilityResponse{
+		ID:        coachAvailability.ID.String(),
+		StartTime: coachAvailability.StartTime,
+		EndTime:   coachAvailability.EndTime,
+		Day:       coachAvailability.Day,
+		CoachID:   coachAvailability.CoachID,
+	}
+	return coachAvailabilityResponse, nil
 }
 
-func (s *coachAvailabilityService) Create(coachAvailability models.CoachAvailability) (models.CoachAvailability, error) {
+func (s *coachAvailabilityService) Create(coachAvailability models.CoachAvailability) (dto.CoachAvailabilityResponse, error) {
 	_, err := s.CheckInterval(coachAvailability)
 	if err != nil {
-		return coachAvailability, err
+		return dto.CoachAvailabilityResponse{}, err
 	}
 
 	coachAvailability, err = s.coachAvailabilityRepo.Create(coachAvailability)
 	if err != nil {
-		return coachAvailability, err
+		return dto.CoachAvailabilityResponse{}, err
 	}
-	return coachAvailability, nil
+	coachAvailabilityResponse := dto.CoachAvailabilityResponse{
+		ID:        coachAvailability.ID.String(),
+		StartTime: coachAvailability.StartTime,
+		EndTime:   coachAvailability.EndTime,
+		Day:       coachAvailability.Day,
+		CoachID:   coachAvailability.CoachID,
+	}
+
+	return coachAvailabilityResponse, nil
 }
 
-func (s *coachAvailabilityService) Update(coachAvailability models.CoachAvailability, id string) (models.CoachAvailability, error) {
+func (s *coachAvailabilityService) Update(coachAvailability models.CoachAvailability, id string) (dto.CoachAvailabilityResponse, error) {
 	if coachAvailability.StartTime != "" && coachAvailability.EndTime != "" {
 		_, err := s.CheckInterval(coachAvailability)
 		if err != nil {
-			return coachAvailability, err
+			return dto.CoachAvailabilityResponse{}, err
 		}
 	}
 
 	coachAvailability, err := s.coachAvailabilityRepo.Update(coachAvailability, id)
 	if err != nil {
-		return coachAvailability, err
+		return dto.CoachAvailabilityResponse{}, err
 	}
-	return coachAvailability, nil
+
+	coachAvailabilityResponse := dto.CoachAvailabilityResponse{
+		ID:        coachAvailability.ID.String(),
+		StartTime: coachAvailability.StartTime,
+		EndTime:   coachAvailability.EndTime,
+		Day:       coachAvailability.Day,
+		CoachID:   coachAvailability.CoachID,
+	}
+
+	return coachAvailabilityResponse, nil
 }
 
 func (s *coachAvailabilityService) Delete(id string) (models.CoachAvailability, error) {
@@ -70,14 +95,14 @@ func (s *coachAvailabilityService) Delete(id string) (models.CoachAvailability, 
 }
 
 func (s *coachAvailabilityService) CheckInterval(coachAvailability models.CoachAvailability) (bool, error) {
-	startTime, err := strconv.Atoi(strings.ReplaceAll(coachAvailability.StartTime, ":", ""))
+	startTime, err := strconv.ParseFloat(strings.ReplaceAll(coachAvailability.StartTime, ":", ""), 64)
 	if err != nil {
 		return false, err
 	}
 
 	startTime = startTime / 100
 
-	endTime, err := strconv.Atoi(strings.ReplaceAll(coachAvailability.EndTime, ":", ""))
+	endTime, err := strconv.ParseFloat(strings.ReplaceAll(coachAvailability.EndTime, ":", ""), 64)
 	if err != nil {
 		return false, err
 	}
