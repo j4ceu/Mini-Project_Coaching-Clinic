@@ -6,9 +6,9 @@ import (
 	"Mini-Project_Coaching-Clinic/repositories"
 	"Mini-Project_Coaching-Clinic/services"
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/spf13/viper"
 )
 
 type Config struct {
@@ -68,18 +68,10 @@ func initConfig() {
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
-	cfg := &Config{}
 
-	viper.SetConfigName(".env")
-	viper.SetConfigType("env")
-	viper.AddConfigPath(".")
-
-	if err := viper.ReadInConfig(); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := viper.Unmarshal(cfg); err != nil {
-		log.Fatal(err)
+	cfg := &Config{
+		DB_URI:     os.Getenv("DB_URI"),
+		SECRET_JWT: os.Getenv("SECRET_JWT"),
 	}
 
 	Cfg = cfg
