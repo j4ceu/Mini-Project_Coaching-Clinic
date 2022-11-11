@@ -9,8 +9,8 @@ RUN go mod download
 RUN go build -o main.app 
 
 #final stage
-ARG COMPANY_LOGO = images/company-logo.png
-ARG INVOICE_HTML = html/invoice_email.html
+ARG COMPANY_LOGO=images/company-logo.png
+ARG INVOICE_HTML=html/invoice_email.html
 
 FROM alpine:latest
 COPY --from=builder app/main.app /app
