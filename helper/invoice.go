@@ -30,7 +30,11 @@ func GenerateInvoice(userPayment models.UserPayment, invoice string) string {
 	doc.SetRef(invoice)
 	doc.SetDate(time.Now().Format("02 January 2006"))
 
-	logoBytes, _ := ioutil.ReadFile("./images/company-logo.png")
+	logoBytes, err := ioutil.ReadFile("./images/company-logo.png")
+	if err != nil {
+		log.Fatal("Read file error")
+		log.Fatal(err)
+	}
 
 	doc.SetCompany(&generator.Contact{
 		Name: "Coaching Clinic",
