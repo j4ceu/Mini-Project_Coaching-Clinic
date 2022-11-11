@@ -12,9 +12,9 @@ RUN go build -o main.app
 
 
 FROM alpine:latest
-COPY --from=builder app/main.app /app
-COPY --from=builder app/images/company-logo.png /app
-COPY --from=builder app/html/invoice_email.html /app
+COPY --from=builder app/main.app /app/main.app
+COPY --from=builder app/images/company-logo.png /app/images/company-logo.png
+COPY --from=builder app/html/invoice_email.html /app/html/invoice_email.html
 
 ENTRYPOINT ["/app/main.app"]
 LABEL Name=coaching-clinic Version=1.0
