@@ -31,13 +31,13 @@ func (ca *coachAvailabilityController) CreateCoachAvailability(c echo.Context) e
 		return c.JSON(http.StatusBadRequest, baseResponse)
 	}
 
-	coachAvailability, err := ca.coachAvailabilityService.Create(coachAvailability)
+	coachAvailabilityResponse, err := ca.coachAvailabilityService.Create(coachAvailability)
 	if err != nil {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusInternalServerError, dto.EmptyObj{}, err.Error())
 		return c.JSON(http.StatusInternalServerError, baseResponse)
 	}
 
-	baseResponse := dto.ConvertToBaseResponse("success create coach availability", http.StatusOK, coachAvailability)
+	baseResponse := dto.ConvertToBaseResponse("success create coach availability", http.StatusOK, coachAvailabilityResponse)
 	return c.JSON(http.StatusOK, baseResponse)
 }
 
@@ -54,13 +54,13 @@ func (ca *coachAvailabilityController) UpdateCoachAvailability(c echo.Context) e
 		return c.JSON(http.StatusBadRequest, baseResponse)
 	}
 
-	coachAvailability, err := ca.coachAvailabilityService.Update(coachAvailability, id)
+	coachAvailabilityResponse, err := ca.coachAvailabilityService.Update(coachAvailability, id)
 	if err != nil {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusInternalServerError, dto.EmptyObj{}, err.Error())
 		return c.JSON(http.StatusInternalServerError, baseResponse)
 	}
 
-	baseResponse := dto.ConvertToBaseResponse("success update coach availability", http.StatusOK, coachAvailability)
+	baseResponse := dto.ConvertToBaseResponse("success update coach availability", http.StatusOK, coachAvailabilityResponse)
 	return c.JSON(http.StatusOK, baseResponse)
 }
 

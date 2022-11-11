@@ -60,11 +60,11 @@ func (r *userRepo) Update(userUpdate models.User, id string) (models.User, error
 
 func (r *userRepo) Delete(id string) (models.User, error) {
 	var user models.User
-	err := r.db.Delete(&user).Where("id = ?", id).Error
+	err := r.db.Where("id = ?", id).Delete(&user).Error
 	if err != nil {
 		return user, err
 	}
-	return r.FindByID(id)
+	return user, nil
 }
 
 func (r *userRepo) FindByEmail(email string) (models.User, error) {

@@ -13,7 +13,6 @@ func NewRouter() *echo.Echo {
 	e := echo.New()
 
 	//Init Router
-	e.GET(constant.ENDPOINT_USERS, configs.UserController.GetAllUser)          // Get All User
 	e.POST(constant.ENDPOINT_USER_LOGIN, configs.UserController.LoginUser)     // Login User
 	e.POST(constant.ENDPOINT_USER_REGISTER, configs.UserController.CreateUser) // Register User
 
@@ -23,15 +22,16 @@ func NewRouter() *echo.Echo {
 	}))
 
 	//User Router With Auth
-	auth.PUT(constant.ENDPOINT_USER_UPDATE, configs.UserController.UpdateUser)    // Update User
-	auth.DELETE(constant.ENDPOINT_USER_DELETE, configs.UserController.DeleteUser) // Delete User
+	auth.GET(constant.ENDPOINT_USERS, configs.UserController.GetAllUser, middlewares.UnauthorizedRole([]string{"User"})) // Get All User
+	auth.PUT(constant.ENDPOINT_USER_UPDATE, configs.UserController.UpdateUser)                                           // Update User
+	auth.DELETE(constant.ENDPOINT_USER_DELETE, configs.UserController.DeleteUser)                                        // Delete User
 
 	//Game Router With Auth
 	auth.POST(constant.ENDPOINT_GAME_CREATE, configs.GameController.CreateGame, middlewares.UnauthorizedRole([]string{"User"}))   // Create Game
 	auth.PUT(constant.ENDPOINT_GAME_UPDATE, configs.GameController.UpdateGame, middlewares.UnauthorizedRole([]string{"User"}))    // Update Game
 	auth.DELETE(constant.ENDPOINT_GAME_DELETE, configs.GameController.DeleteGame, middlewares.UnauthorizedRole([]string{"User"})) // Delete Game
-	auth.GET(constant.ENDPOINT_GAME_DETAIL, configs.GameController.FindGameByID, middlewares.UnauthorizedRole([]string{"User"}))  // Find Game By ID
-	auth.GET(constant.ENDPOINT_GAMES, configs.GameController.FindAllGame, middlewares.UnauthorizedRole([]string{"User"}))         // Find All Game
+	auth.GET(constant.ENDPOINT_GAME_DETAIL, configs.GameController.FindGameByID)                                                  // Find Game By ID
+	auth.GET(constant.ENDPOINT_GAMES, configs.GameController.FindAllGame)                                                         // Find All Game
 
 	//Coach Router With Auth
 	auth.POST(constant.ENDPOINT_COACH_CREATE, configs.CoachController.CreateCoach, middlewares.UnauthorizedRole([]string{"User"}))   // Create Coach
