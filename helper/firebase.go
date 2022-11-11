@@ -46,7 +46,7 @@ func InitAppFirebase() {
 	}
 
 	// Struct to JSON
-	jsonKey, err := json.Marshal(serviceAccountKey)
+	jsonKey, _ := json.Marshal(serviceAccountKey)
 
 	config := &firebase.Config{
 		StorageBucket: "coaching-clinic.appspot.com",
