@@ -65,6 +65,7 @@ func GenerateInvoice(userPayment models.UserPayment, invoice string) string {
 	pdf, err := doc.Build()
 	if err != nil {
 		log.Fatal(err)
+		log.Fatal("error doc build")
 	}
 
 	var buf bytes.Buffer
@@ -72,6 +73,7 @@ func GenerateInvoice(userPayment models.UserPayment, invoice string) string {
 	err = pdf.Output(&buf)
 	if err != nil {
 		log.Fatal(err)
+		log.Fatal("error pdf output")
 	}
 
 	file := createTempFile(buf, invoice)
@@ -95,6 +97,7 @@ func createTempFile(buf bytes.Buffer, invoice string) *os.File {
 	f, err := os.CreateTemp("", invoiceName)
 	if err != nil {
 		log.Fatal(err)
+		log.Fatal("Create temp file error")
 	}
 
 	defer f.Close()
@@ -102,6 +105,7 @@ func createTempFile(buf bytes.Buffer, invoice string) *os.File {
 
 	if _, err := f.Write(buf.Bytes()); err != nil {
 		log.Fatal(err)
+		log.Fatal("Write temp file error")
 	}
 
 	return f
