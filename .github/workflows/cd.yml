@@ -18,6 +18,8 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
+          skip-pkg-cache: true
+          skip-build-cache: true
       - name: Build, Push and Release a Docker container to Heroku
         uses: gonuit/heroku-docker-deploy@v1.3.3  
         with:
