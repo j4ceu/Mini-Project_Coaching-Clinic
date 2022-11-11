@@ -89,13 +89,13 @@ func (ub *userBookController) DeleteUserBook(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, baseResponse)
 	}
 
-	userBook, err := ub.userBookService.Delete(idReq)
+	_, err := ub.userBookService.Delete(idReq)
 	if err != nil {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusInternalServerError, dto.EmptyObj{}, err.Error())
 		return c.JSON(http.StatusInternalServerError, baseResponse)
 	}
 
-	baseResponse := dto.ConvertToBaseResponse("success delete user book", http.StatusOK, userBook)
+	baseResponse := dto.ConvertToBaseResponse("success delete user book", http.StatusOK, dto.EmptyObj{})
 	return c.JSON(http.StatusOK, baseResponse)
 }
 
@@ -158,12 +158,12 @@ func (ub *userBookController) FindUserBookByUserID(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, baseResponse)
 	}
 
-	_, err := ub.userBookService.FindByUserID(idReq)
+	userBook, err := ub.userBookService.FindByUserID(idReq)
 	if err != nil {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusInternalServerError, dto.EmptyObj{}, err.Error())
 		return c.JSON(http.StatusInternalServerError, baseResponse)
 	}
 
-	baseResponse := dto.ConvertToBaseResponse("success get user book by user id", http.StatusOK, dto.EmptyObj{})
+	baseResponse := dto.ConvertToBaseResponse("success get user book by user id", http.StatusOK, userBook)
 	return c.JSON(http.StatusOK, baseResponse)
 }
