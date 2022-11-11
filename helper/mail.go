@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"log"
 	"os"
 
 	"gopkg.in/gomail.v2"
@@ -44,7 +45,13 @@ func ParseTemplate(templateFileName string, data interface{}) (string, error) {
 
 func SendEmailVerification(to string, data interface{}) {
 	var err error
-	template := "html/invoice_email.html"
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(path)
+
+	template := path + "/html/invoice_email.html"
 	err = sendMail(to, data, template)
 	if err == nil {
 		fmt.Println("send email success")

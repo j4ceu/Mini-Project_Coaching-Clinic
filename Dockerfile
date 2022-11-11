@@ -9,13 +9,11 @@ RUN go mod download
 RUN go build -o main.app 
 
 #final stage
-ARG COMPANY_LOGO = images/company-logo.png
-ARG INVOICE_HTML = html/invoice_email.html
-
 FROM alpine:latest
 COPY --from=builder app/main.app /app
-COPY ${COMPANY_LOGO} /app
-COPY ${INVOICE_HTML} /app
+COPY --from=builder app/images/company-logo.png /app
+COPY --from=builder app/html/invoice_email.html /app
+COPY --from=builder app/.env /app
 ENTRYPOINT /app
 LABEL Name=coaching-clinic Version=1.0
 EXPOSE 8080

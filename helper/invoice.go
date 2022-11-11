@@ -30,7 +30,14 @@ func GenerateInvoice(userPayment models.UserPayment, invoice string) string {
 	doc.SetRef(invoice)
 	doc.SetDate(time.Now().Format("02 January 2006"))
 
-	logoBytes, err := ioutil.ReadFile("./images/company-logo.png")
+	//Check Work Directory
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(path)
+
+	logoBytes, err := ioutil.ReadFile(path + "/images/company-logo.png")
 	if err != nil {
 		log.Fatal("Read file error")
 		log.Fatal(err)
