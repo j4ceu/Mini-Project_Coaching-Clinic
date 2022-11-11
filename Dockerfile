@@ -11,6 +11,9 @@ RUN go build -o main.app
 #final stage
 FROM alpine:latest
 COPY --from=builder app/main.app /app
+COPY --from=builder app/images/company-logo.html /app
+COPY --from=builder app/html/invoice_email.html /app
+COPY --from=builder app/.env /app
 ENTRYPOINT /app
 LABEL Name=coaching-clinic Version=1.0
 EXPOSE 8080
