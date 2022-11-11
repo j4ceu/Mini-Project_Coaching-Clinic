@@ -16,6 +16,8 @@ jobs:
         run: go test -v ./...
       - name: run linting
         uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
       - name: Build, Push and Release a Docker container to Heroku
         uses: gonuit/heroku-docker-deploy@v1.3.3  
         with:
