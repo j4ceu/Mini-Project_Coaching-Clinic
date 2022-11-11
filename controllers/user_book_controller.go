@@ -158,12 +158,12 @@ func (ub *userBookController) FindUserBookByUserID(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, baseResponse)
 	}
 
-	userBook, err := ub.userBookService.FindByUserID(idReq)
+	_, err := ub.userBookService.FindByUserID(idReq)
 	if err != nil {
 		baseResponse := dto.ConvertErrorToBaseResponse("failed", http.StatusInternalServerError, dto.EmptyObj{}, err.Error())
 		return c.JSON(http.StatusInternalServerError, baseResponse)
 	}
 
-	baseResponse := dto.ConvertToBaseResponse("success get user book by user id", http.StatusOK, userBook)
+	baseResponse := dto.ConvertToBaseResponse("success get user book by user id", http.StatusOK, dto.EmptyObj{})
 	return c.JSON(http.StatusOK, baseResponse)
 }
